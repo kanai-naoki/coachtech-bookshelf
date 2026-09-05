@@ -43,6 +43,10 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function genres()
+    {
+        return $this->hasMany(Genre::class);
+    }
     public function books()
     {
         return $this->hasMany(Book::class);

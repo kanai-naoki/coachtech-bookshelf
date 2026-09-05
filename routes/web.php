@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// 書籍一覧（トップページ）：（/）と（/books）の両方で表示
+Route::get('/', [BookController::class, 'index'])->name('books.index');
+Route::get('/books', [BookController::class, 'index']);
+
+// 書籍詳細
+Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
