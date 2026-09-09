@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
@@ -24,7 +23,7 @@ class BookController extends Controller
             'genres',
             'reviews' => function ($query) {
                 $query->with('user')->withCount('likedByUsers');
-            }
+            },
         ]);
 
         return view('books.show', compact('book'));
