@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\GenreController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -21,7 +22,14 @@ use Illuminate\Support\Facades\Auth;
 // 書籍詳細
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
-// 機能確認用暫定トップページ
+
+
+Route::middleware(['auth'])->group(function () {
+    // ジャンル一覧・詳細・編集（追加・削除）画面
+    Route::resource('genres', GenreController::class);
+});
+
+// １．機能確認用暫定トップページ
 Route::get('/', function () {
     if (Auth::check()) {
         $user = Auth::user()->name;
@@ -49,3 +57,9 @@ Route::get('/', function () {
         </div>
     ";
 })->name('top');
+
+// 2. 未実装機能の仮ルート設定（エラー防止用）
+Route::get('/books', fn() => '書籍一覧（開発中）')->name('books.index');
+Route::get('/books/create', fn() => '書籍登録（開発中）')->name('books.create');
+Route::get('/ranking', fn() => 'ランキング（開発中）')->name('ranking.index');
+Route::get('/favorites', fn() => 'お気に入り（開発中）')->name('favorites.index');
