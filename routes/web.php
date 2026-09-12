@@ -14,52 +14,59 @@ use Illuminate\Support\Facades\Auth;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-// 書籍一覧（トップページ）：（/）と（/books）の両方で表示
-// Route::get('/', [BookController::class, 'index'])->name('books.index');
-// Route::get('/books', [BookController::class, 'index']);
-
-// 書籍詳細
-Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
-
-
-
+// １．ログインユーザーのみ利用できる機能
 Route::middleware(['auth'])->group(function () {
     // ジャンル一覧・詳細・編集（追加・削除）画面
     Route::resource('genres', GenreController::class);
+    // 書籍登録・編集・削除画面
+    Route::resource('books', BookController::class)->except([
+        'index',
+        'show',
+    ]);
+    // （仮）
+    // お気に入り
+    Route::get('/favorites', function () {
+        return 'Favorites Index Page (Dummy)';
+    })->name('favorites.index');
+
+    Route::post('/books/{book}/favorites', function () {
+        return back();
+    })->name('favorites.toggle');
+
+    // レビュー
+    Route::post('/books/{book}/reviews', function () {
+        return back();
+    })->name('reviews.store');
+
+    Route::get('/reviews/{review}/edit', function () {
+        return 'Review Edit Page (Dummy)';
+    })->name('reviews.edit');
+
+    Route::put('/reviews/{review}', function () {
+        return back();
+    })->name('reviews.update');
+
+    Route::delete('/reviews/{review}', function () {
+        return back();
+    })->name('reviews.destroy');
+
+    // レビューいいね
+    Route::post('/reviews/{review}/like', function () {
+        return back();
+    })->name('reviews.like');
 });
 
-// １．機能確認用暫定トップページ
-Route::get('/', function () {
-    if (Auth::check()) {
-        $user = Auth::user()->name;
-        $csrf = csrf_field();
-        $logoutUrl = route('logout');
+// ２. 誰でもアクセス可能なルート（ゲスト可）
+// 書籍一覧
+Route::get('/', [BookController::class, 'index'])->name('books.index');
+// 書籍一覧（/booksでも表示される）・書籍詳細
+Route::resource('books', BookController::class)->only([
+    'index',
+    'show',
+]);
 
-        return "
-            <div style='padding: 20px; font-family: sans-serif;'>
-                <h2>トップページ（仮）</h2>
-                <p>ログイン中: <strong>{$user}</strong></p>
-                <form method='POST' action='{$logoutUrl}'>
-                    {$csrf}
-                    <button type='submit'>ログアウト</button>
-                </form>
-            </div>
-        ";
-    }
+// ランキング（仮）
+Route::get('/ranking', function () {
+    return 'Ranking Page (Dummy)';
+})->name('ranking.index');
 
-    return "
-        <div style='padding: 20px; font-family: sans-serif;'>
-            <h2>トップページ（仮）</h2>
-            <p>ログインしていません。</p>
-            <a href='" . route('login') . "'>ログイン</a> |
-            <a href='" . route('register') . "'>会員登録</a>
-        </div>
-    ";
-})->name('top');
-
-// 2. 未実装機能の仮ルート設定（エラー防止用）
-Route::get('/books', fn() => '書籍一覧（開発中）')->name('books.index');
-Route::get('/books/create', fn() => '書籍登録（開発中）')->name('books.create');
-Route::get('/ranking', fn() => 'ランキング（開発中）')->name('ranking.index');
-Route::get('/favorites', fn() => 'お気に入り（開発中）')->name('favorites.index');
