@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -16,13 +17,20 @@ use Illuminate\Support\Facades\Auth;
 */
 // １．ログインユーザーのみ利用できる機能
 Route::middleware(['auth'])->group(function () {
-    // ジャンル一覧・詳細・編集（追加・削除）画面
+    // ジャンル一覧・詳細・編集（追加・削除）
     Route::resource('genres', GenreController::class);
-    // 書籍登録・編集・削除画面
+    // 書籍登録・編集・削除
     Route::resource('books', BookController::class)->except([
         'index',
         'show',
     ]);
+    // レビュー投稿・編集・削除
+    Route::resource('books.reviews', ReviewController::class)
+        ->shallow()
+        ->only(['store', 'edit', 'update', 'destroy'])->names([
+                'store' => 'reviews.store',
+            ]);
+
     // （仮）
     // お気に入り
     Route::get('/favorites', function () {
@@ -32,23 +40,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/books/{book}/favorites', function () {
         return back();
     })->name('favorites.toggle');
-
-    // レビュー
-    Route::post('/books/{book}/reviews', function () {
-        return back();
-    })->name('reviews.store');
-
-    Route::get('/reviews/{review}/edit', function () {
-        return 'Review Edit Page (Dummy)';
-    })->name('reviews.edit');
-
-    Route::put('/reviews/{review}', function () {
-        return back();
-    })->name('reviews.update');
-
-    Route::delete('/reviews/{review}', function () {
-        return back();
-    })->name('reviews.destroy');
 
     // レビューいいね
     Route::post('/reviews/{review}/like', function () {
