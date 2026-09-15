@@ -5,6 +5,7 @@ use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\RankingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -48,9 +49,6 @@ Route::resource('books', BookController::class)->only([
     'index',
     'show',
 ]);
-
-// ランキング（仮）
-Route::get('/ranking', function () {
-    return 'Ranking Page (Dummy)';
-})->name('ranking.index');
+// ランキング
+Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
 
