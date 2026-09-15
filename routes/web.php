@@ -4,6 +4,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
+use App\Http\Controllers\FavoriteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -31,20 +32,12 @@ Route::middleware(['auth'])->group(function () {
         ->only(['store', 'edit', 'update', 'destroy'])->names([
                 'store' => 'reviews.store',
             ]);
-
-    // （仮）
-    // お気に入り
-    Route::get('/favorites', function () {
-        return 'Favorites Index Page (Dummy)';
-    })->name('favorites.index');
-
-    Route::post('/books/{book}/favorites', function () {
-        return back();
-    })->name('favorites.toggle');
-
     // レビューいいね
-    Route::post('/reviews/{review}/like', ReviewLikeController::class)
-        ->name('reviews.like');
+    Route::post('/reviews/{review}/like', ReviewLikeController::class)->name('reviews.like');
+    // お気に入り一覧画面
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    // お気に入り（追加・解除）
+    Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 });
 
 // ２. 誰でもアクセス可能なルート（ゲスト可）
