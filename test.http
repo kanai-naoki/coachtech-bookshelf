@@ -1,0 +1,52 @@
+### 1. 一覧取得 (GET)
+GET http://localhost/api/v1/books
+Accept: application/json
+
+### 2. 検索・ペジネーション検証 (GET)
+GET http://localhost/api/v1/books?per_page=5&page=1
+Accept: application/json
+
+### 3. バリデーションエラー検証 (GET) - per_page 上限超え
+GET http://localhost/api/v1/books?per_page=150
+Accept: application/json
+
+### 4. 新規登録 (POST)
+POST http://localhost/api/v1/books
+Accept: application/json
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "title": "テスト用新規書籍",
+    "author": "テスト著者",
+    "isbn": "9784123456789",
+    "published_date": "2026-09-28",
+    "description": "APIテスト用の説明文です。",
+    "genre_ids": [1]
+}
+
+### 5. 詳細取得 (GET) - 存在するIDを指定 (例: ID: 14)
+GET http://localhost/api/v1/books/14
+Accept: application/json
+
+### 6. 更新 (PUT) - 登録済みの内容を更新 (例: ID: 14)
+PUT http://localhost/api/v1/books/14
+Accept: application/json
+Content-Type: application/json
+
+{
+    "title": "更新後のテストタイトル",
+    "author": "テスト著者",
+    "isbn": "9784123456789",
+    "published_date": "2026-09-28",
+    "description": "更新後の説明文です。",
+    "genre_ids": [1]
+}
+
+### 7. 削除 (DELETE) - (例: ID: 14)
+DELETE http://localhost/api/v1/books/14
+Accept: application/json
+
+### 8. 存在しないIDへのリクエスト検証 (GET) - 404確認
+GET http://localhost/api/v1/books/99999
+Accept: application/json
