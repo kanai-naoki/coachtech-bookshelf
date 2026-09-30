@@ -23,7 +23,7 @@ class BookUpdateRequest extends FormRequest
             'isbn' => [
                 'required',
                 'string',
-                'max:13',
+                'size:13',
                 Rule::unique('books', 'isbn')->ignore($bookId),
             ],
             'published_date' => ['required', 'date'],

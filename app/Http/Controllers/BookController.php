@@ -98,6 +98,8 @@ class BookController extends Controller
      */
     public function update(BookRequest $request, Book $book): RedirectResponse
     {
+        $this->authorize('update', $book);
+
         DB::transaction(function () use ($request, $book) {
             $book->update($request->validated());
             $book->genres()->sync($request->validated('genres'));

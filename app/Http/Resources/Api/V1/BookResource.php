@@ -38,10 +38,8 @@ class BookResource extends JsonResource
             }),
 
             // 集計データ（withAvg / withCount で読み込まれている場合）
-            'reviews_avg_rating' => isset($this->reviews_avg_rating)
-                ? round((float) $this->reviews_avg_rating, 1)
-                : 0,
-            'reviews_count' => $this->reviews_count ?? 0,
+            'average_rating' => isset($this->reviews_avg_rating) ? round((float) $this->reviews_avg_rating, 1) : 0,
+            'review_count' => $this->reviews_count ?? 0,
         ];
     }
 }
