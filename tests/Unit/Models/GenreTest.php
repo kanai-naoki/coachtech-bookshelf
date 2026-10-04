@@ -17,7 +17,7 @@ class GenreTest extends TestCase
 
     // ---- 正常系 ----
 
-    public function test_user_はbelongsToでUserを返す(): void
+    public function test_user_はbelongs_toで_userを返す(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create(['user_id' => $user->id]);
@@ -26,7 +26,7 @@ class GenreTest extends TestCase
         $this->assertTrue($genre->user->is($user));
     }
 
-    public function test_books_はbook_genre経由のbelongsToManyでBookを返す(): void
+    public function test_books_はbook_genre経由のbelongs_to_manyで_bookを返す(): void
     {
         $genre = Genre::factory()->create();
         $book = Book::factory()->create();
@@ -50,7 +50,7 @@ class GenreTest extends TestCase
         $genre->books()->attach($book->id);
     }
 
-    public function test_存在しないユーザーIDのジャンルは外部キー制約違反(): void
+    public function test_存在しないユーザー_i_dのジャンルは外部キー制約違反(): void
     {
         $this->expectException(QueryException::class);
         Genre::factory()->create(['user_id' => 999999]);

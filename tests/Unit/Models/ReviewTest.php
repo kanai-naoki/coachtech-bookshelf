@@ -17,7 +17,7 @@ class ReviewTest extends TestCase
 
     // ---- 正常系 ----
 
-    public function test_user_はbelongsToでUserを返す(): void
+    public function test_user_はbelongs_toで_userを返す(): void
     {
         $user = User::factory()->create();
         $review = Review::factory()->create(['user_id' => $user->id]);
@@ -26,7 +26,7 @@ class ReviewTest extends TestCase
         $this->assertTrue($review->user->is($user));
     }
 
-    public function test_book_はbelongsToでBookを返す(): void
+    public function test_book_はbelongs_toで_bookを返す(): void
     {
         $book = Book::factory()->create();
         $review = Review::factory()->create(['book_id' => $book->id]);
@@ -35,7 +35,7 @@ class ReviewTest extends TestCase
         $this->assertTrue($review->book->is($book));
     }
 
-    public function test_likedByUsers_はreview_likes経由のbelongsToManyでUserを返す(): void
+    public function test_liked_by_users_はreview_likes経由のbelongs_to_manyで_userを返す(): void
     {
         $review = Review::factory()->create();
         $user = User::factory()->create();
@@ -70,7 +70,7 @@ class ReviewTest extends TestCase
         $review->likedByUsers()->attach($user->id);
     }
 
-    public function test_存在しない書籍IDのレビューは外部キー制約違反(): void
+    public function test_存在しない書籍_i_dのレビューは外部キー制約違反(): void
     {
         $this->expectException(QueryException::class);
         Review::factory()->create(['book_id' => 999999]);

@@ -34,7 +34,7 @@ class BookApiWriteTest extends TestCase
 
     // ---------- 正常系 ----------
 
-    public function test_新規登録で201とDB保存とジャンル紐付けができる(): void
+    public function test_新規登録で201と_d_b保存とジャンル紐付けができる(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
@@ -50,7 +50,7 @@ class BookApiWriteTest extends TestCase
         $this->assertDatabaseHas('book_genre', ['genre_id' => $genre->id]);
     }
 
-    public function test_更新で200とDB値とジャンルが更新される(): void
+    public function test_更新で200と_d_b値とジャンルが更新される(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
@@ -71,7 +71,7 @@ class BookApiWriteTest extends TestCase
         $this->assertDatabaseMissing('book_genre', ['book_id' => $book->id, 'genre_id' => $old->id]);
     }
 
-    public function test_削除で204が返りボディが空でDBから消える(): void
+    public function test_削除で204が返りボディが空で_d_bから消える(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
@@ -98,7 +98,7 @@ class BookApiWriteTest extends TestCase
         $this->assertDatabaseCount('books', 0);
     }
 
-    public function test_更新で他書籍と重複するISBNは422(): void
+    public function test_更新で他書籍と重複する_isb_nは422(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
@@ -112,7 +112,7 @@ class BookApiWriteTest extends TestCase
 
     // ---------- 境界値 ----------
 
-    public function test_ISBN12桁は422(): void
+    public function test_isb_n12桁は422(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
@@ -122,7 +122,7 @@ class BookApiWriteTest extends TestCase
             ->assertJsonValidationErrors('isbn');
     }
 
-    public function test_ISBN13桁は登録でき14桁は422(): void
+    public function test_isb_n13桁は登録でき14桁は422(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create();

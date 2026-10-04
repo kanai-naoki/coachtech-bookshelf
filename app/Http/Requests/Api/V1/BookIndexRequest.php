@@ -24,14 +24,14 @@ class BookIndexRequest extends FormRequest
     public function messages(): array
     {
         return [
-            // 'keyword.string' => 'キーワードは文字列で入力してください。',
-            // 'keyword.max' => 'キーワードは255文字以内で入力してください。',
-            // 'genre_id.integer' => 'ジャンルIDは整数で入力してください。',
-            // 'page.integer' => 'ページ番号は整数で入力してください。',
-            // 'page.min' => 'ページ番号は1以上で入力してください。',
-            // 'per_page.integer' => '1ページあたりの件数は整数で入力してください。',
-            // 'per_page.min' => '1ページあたりの件数は1以上で入力してください。',
-            // 'per_page.max' => '1ページあたりの件数は100以下で入力してください。',
+            'keyword.string' => 'キーワードは文字列で入力してください。',
+            'keyword.max' => 'キーワードは255文字以内で入力してください。',
+            'genre_id.integer' => 'ジャンルIDは整数で入力してください。',
+            'page.integer' => 'ページ番号は整数で入力してください。',
+            'page.min' => 'ページ番号は1以上で入力してください。',
+            'per_page.integer' => '1ページあたりの件数は整数で入力してください。',
+            'per_page.min' => '1ページあたりの件数は1以上で入力してください。',
+            'per_page.max' => '1ページあたりの件数は100以下で入力してください。',
         ];
     }
 }

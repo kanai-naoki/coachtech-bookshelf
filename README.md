@@ -1,66 +1,199 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# COACHTECH ブックシェルフ
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 概要
 
-## About Laravel
+本プロジェクトは、書籍の登録・管理およびレビュー投稿・閲覧を行うWebアプリケーション「BookShelf」です。
+Traditional Web (SSR) 構成をベースとし、ユーザーによる書籍情報の登録や編集、レビュー評価、お気に入り登録、ジャンル別分類、平均評価に基づくランキング、公開用APIなどを提供しています。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 実装機能一覧
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+【ユーザー認証機能】
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **会員登録・ログイン・ログアウト** (`/register`, `/login`, `/logout`)
+    - 会員登録（氏名・メールアドレス・パスワード）
+    - ログイン・ログアウト処理
 
-## Learning Laravel
+【書籍管理・閲覧機能】
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **書籍一覧（トップ）画面** (`/` または `/books`)
+    - 登録済み書籍の一覧表示（最新順、10件ごとのページネーション）
+- **書籍詳細画面** (`/books/{book}`)
+    - 書籍の基本情報（タイトル・著者・ISBN・ジャンル等）およびレビュー・お気に入り・いいね機能の表示
+- **書籍登録画面** (`/books/create`) ※認証必須
+    - 書籍情報（タイトル、著者、ISBN、出版日、概要、画像URL）の新規登録
+    - ジャンルの選択（複数選択可能なチェックボックス）
+- **書籍編集画面** (`/books/{book}/edit`) ※認証＋認可必須（投稿者のみ）
+    - 自身が登録した書籍情報の編集および削除
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+【レビュー・評価機能】
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **レビュー投稿・編集** (`/books/{book}`, `/reviews/{review}/edit`) ※認証必須
+    - 1ユーザー1書籍につき1件のレビュー投稿（星評価・コメント）
+    - 自身が投稿したレビューの編集・削除
+- **レビューいいね機能** (`/books/{book}`) ※認証必須
+    - レビューに対する「いいね」の登録および解除
 
-## Laravel Sponsors
+【お気に入り機能】
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **お気に入り登録・一覧** (`/favorites`) ※認証必須
+    - 書籍のお気に入り登録および解除
+    - お気に入り登録した書籍の一覧表示（10件ごとのページネーション）
 
-### Premium Partners
+【ジャンル管理機能】
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- **ジャンル一覧・詳細** (`/genres`, `/genres/{genre}`) ※認証必須
+    - 各ジャンルの書籍数表示
+    - ジャンルに紐づく書籍の一覧表示（10件ごとのページネーション）
+- **ジャンル登録・編集** (`/genres/create`, `/genres/{genre}/edit`) ※認証必須
+    - ジャンルの新規追加・編集・削除
 
-## Contributing
+【ランキング機能】
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **ランキング画面** (`/ranking`)
+    - レビュー平均評価が高い上位10件の書籍を表示
 
-## Code of Conduct
+【公開API機能】
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **書籍データCRUD API** (`/api/v1/books`)
+    - 書籍一覧・詳細データの取得（JSON形式）
+    - 書籍データの新規登録・更新・削除（認証なしCRUD操作）
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 開発環境URL
 
-## License
+- **Webアプリケーション**: [http://localhost](http://localhost)
+- **phpMyAdmin**: [http://localhost:8080](http://localhost:8080)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 使用技術
+
+- **OS**: Linux (Docker環境)
+- **言語 / 構成**: PHP 8.5 / Laravel 10.x
+- **データベース**: MySQL 8.4
+- **Webサーバー**: Nginx
+- **フロントエンド**: Vite, Tailwind CSS ^3.4.0, Alpine.js
+- **開発環境・管理ツール**: Docker, Laravel Sail, phpMyAdmin
+
+---
+
+## ER図
+
+![c:\Users\otkn2\OneDrive\画像\Screenshots\スクリーンショット 2026-10-01 204757.png](<スクリーンショット 2026-10-01 204757.png>)
+
+---
+
+## APIエンドポイント一覧
+
+認証不要の REST API エンドポイントを提供しています。
+
+| HTTPメソッド | URI                     | 説明                                   |
+| :----------- | :---------------------- | :------------------------------------- |
+| **GET**      | `/api/v1/books`         | 書籍一覧（検索・ページネーション付き） |
+| **GET**      | `/api/v1/books/{books}` | 書籍詳細                               |
+| **POST**     | `/api/v1/books`         | 書籍新規登録                           |
+| **PUT**      | `/api/v1/books/{books}` | 書籍更新                               |
+| **DELETE**   | `/api/v1/books/{books}` | 書籍削除                               |
+
+---
+
+## 環境構築手順
+
+### 1. リポジトリのクローン
+
+本プロジェクトを GitHub からローカル環境へクローンします。
+
+```bash
+git clone git@github.com:kanai-naoki/coachtech-bookshelf.git
+cd coachtech-bookshelf
+```
+
+_(※ HTTPS経由でクローンする場合は `git clone https://github.com/kanai-naoki/coachtech-bookshelf.git`)_
+
+### 2. 環境変数の設定 (`.env`)
+
+`.env.example` をコピーして `.env` を作成します。
+
+```bash
+cp .env.example .env
+```
+
+`.env` 内のデータベース設定が以下の内容になっているか確認します：
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
+
+### 3. Composer パッケージのインストール
+
+Docker イメージを経由して依存関係をインストールします。
+
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    -e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+    laravelsail/php82-composer:latest \
+    composer install
+```
+
+### 4. Docker (Laravel Sail) の起動とエイリアス設定
+
+Docker コンテナをバックグラウンドで起動します。
+
+```bash
+./vendor/bin/sail up -d
+```
+
+_(エイリアス設定)_
+
+```bash
+echo "alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+_※ 初回起動時や他環境での実行時にストレージの権限エラーが発生する場合は、以下のコマンドを実行してください。_
+
+```bash
+sail exec laravel.test chmod -R 777 storage bootstrap/cache
+```
+
+### 5. アプリケーションキーの生成
+
+```bash
+sail artisan key:generate
+```
+
+### 6. フロントエンドパッケージのインストールとビルド
+
+```bash
+sail npm install
+sail npm run build
+```
+
+### 7. データベースマイグレーションおよび初期データの投入
+
+```bash
+sail artisan migrate --seed
+```
+
+### 8. テストの実行
+
+以下のコマンドで自動テスト（PHPUnit / Pest）を実行します。
+
+```bash
+sail test
+```
+
+---
+
+## 作成者
+
+家内 直紀

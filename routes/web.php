@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
-use App\Http\Controllers\FavoriteController;
-use App\Http\Controllers\RankingController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,8 +31,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('books.reviews', ReviewController::class)
         ->shallow()
         ->only(['store', 'edit', 'update', 'destroy'])->names([
-                'store' => 'reviews.store',
-            ]);
+            'store' => 'reviews.store',
+        ]);
     // レビューいいね
     Route::post('/reviews/{review}/like', ReviewLikeController::class)->name('reviews.like');
     // お気に入り一覧画面
@@ -51,4 +51,3 @@ Route::resource('books', BookController::class)->only([
 ]);
 // ランキング
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
-

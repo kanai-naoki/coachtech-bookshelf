@@ -8,17 +8,22 @@ use Illuminate\Database\Seeder;
 
 class GenreSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $firstUser = User::first();
-        $userId = $firstUser ? $firstUser->id : 1;
+        $userIds = User::pluck('id');
 
-        $genres = ['小説', 'ビジネス', '技術書', '自己啓発', 'エッセイ', '歴史', '科学', '芸術', '料理', '旅行'];
+        $genres = [
+            '小説', 'ビジネス', '技術書', '自己啓発',
+            'エッセイ', '歴史', '科学', '芸術', '料理', '旅行',
+        ];
 
         foreach ($genres as $name) {
             Genre::firstOrCreate(
                 ['name' => $name],
-                ['user_id' => $userId]
+                ['user_id' => $userIds->isNotEmpty() ? $userIds->random() : 1]
             );
         }
     }
