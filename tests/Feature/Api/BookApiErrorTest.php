@@ -40,7 +40,7 @@ class BookApiErrorTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $fan->id]);
     }
 
-    public function test_更新で自分の既存ISBNを送っても重複エラーにならない(): void
+    public function test_更新で自分の既存_isb_nを送っても重複エラーにならない(): void
     {
         $book = Book::factory()->create();
         $genre = Genre::factory()->create();
@@ -65,7 +65,7 @@ class BookApiErrorTest extends TestCase
             ->assertJsonPath('errors.genre_ids.0', 'ジャンルは1つ以上選択してください。');
     }
 
-    public function test_既存ISBNでの登録は重複エラー(): void
+    public function test_既存_isb_nでの登録は重複エラー(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
@@ -87,7 +87,7 @@ class BookApiErrorTest extends TestCase
             ->assertJsonValidationErrors(['title', 'author', 'isbn', 'published_date', 'genre_ids']);
     }
 
-    public function test_存在しないジャンルIDを指定すると422(): void
+    public function test_存在しないジャンル_i_dを指定すると422(): void
     {
         $user = User::factory()->create();
 
@@ -97,12 +97,12 @@ class BookApiErrorTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('genre_ids.0');
     }
 
-    public function test_存在しないIDの更新は404(): void
+    public function test_存在しない_i_dの更新は404(): void
     {
         $this->putJson('/api/v1/books/99999', [])->assertNotFound();
     }
 
-    public function test_存在しないIDの削除は404(): void
+    public function test_存在しない_i_dの削除は404(): void
     {
         $this->deleteJson('/api/v1/books/99999')->assertNotFound();
     }
@@ -119,7 +119,7 @@ class BookApiErrorTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('genre_ids');
     }
 
-    public function test_不正な日付とURLは422(): void
+    public function test_不正な日付と_ur_lは422(): void
     {
         $book = Book::factory()->create();
         $genre = Genre::factory()->create();

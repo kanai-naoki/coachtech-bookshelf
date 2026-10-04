@@ -53,7 +53,7 @@ class BookTest extends TestCase
     {
         $prefix = 'https://example.com/';
 
-        return $prefix . str_repeat('a', $length - strlen($prefix));
+        return $prefix.str_repeat('a', $length - strlen($prefix));
     }
 
     // ==================== 一覧・詳細表示 ====================
@@ -136,7 +136,7 @@ class BookTest extends TestCase
         $this->assertDatabaseCount('book_genre', 3);
     }
 
-    public function test_登録_正常系_画像URLと説明が任意項目として省略できる(): void
+    public function test_登録_正常系_画像_ur_lと説明が任意項目として省略できる(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['description' => null, 'image_url' => null]))
@@ -145,7 +145,7 @@ class BookTest extends TestCase
         $this->assertDatabaseHas('books', ['isbn' => '9784000000001', 'image_url' => null, 'description' => null]);
     }
 
-    public function test_登録_正常系_画像URLが保存される(): void
+    public function test_登録_正常系_画像_ur_lが保存される(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData())
@@ -187,7 +187,7 @@ class BookTest extends TestCase
         $this->assertDatabaseCount('books', 0);
     }
 
-    public function test_登録_異常系_ISBNが重複するとエラー(): void
+    public function test_登録_異常系_isb_nが重複するとエラー(): void
     {
         Book::factory()->create(['isbn' => '9784000000001']);
 
@@ -196,14 +196,14 @@ class BookTest extends TestCase
             ->assertSessionHasErrors(['isbn' => 'そのISBNは既に使用されています。']);
     }
 
-    public function test_登録_異常系_存在しないジャンルIDはエラー(): void
+    public function test_登録_異常系_存在しないジャンル_i_dはエラー(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['genres' => [99999]]))
             ->assertSessionHasErrors('genres.0');
     }
 
-    public function test_登録_異常系_画像URLの形式が不正だとエラー(): void
+    public function test_登録_異常系_画像_ur_lの形式が不正だとエラー(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['image_url' => 'not-a-url']))
@@ -245,35 +245,35 @@ class BookTest extends TestCase
             ->assertSessionHasErrors('author');
     }
 
-    public function test_登録_境界値_ISBN13桁は登録できる(): void
+    public function test_登録_境界値_isb_n13桁は登録できる(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['isbn' => '1234567890123']))
             ->assertSessionHasNoErrors();
     }
 
-    public function test_登録_境界値_ISBN12桁はエラー(): void
+    public function test_登録_境界値_isb_n12桁はエラー(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['isbn' => '123456789012']))
             ->assertSessionHasErrors(['isbn' => 'ISBNは13桁で入力してください。']);
     }
 
-    public function test_登録_境界値_ISBN14桁はエラー(): void
+    public function test_登録_境界値_isb_n14桁はエラー(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['isbn' => '12345678901234']))
             ->assertSessionHasErrors('isbn');
     }
 
-    public function test_登録_境界値_画像URL255文字は登録できる(): void
+    public function test_登録_境界値_画像_ur_l255文字は登録できる(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['image_url' => $this->urlOfLength(255)]))
             ->assertSessionHasNoErrors();
     }
 
-    public function test_登録_境界値_画像URL256文字はエラー(): void
+    public function test_登録_境界値_画像_ur_l256文字はエラー(): void
     {
         $this->actingAs($this->user)
             ->post(route('books.store'), $this->validData(['image_url' => $this->urlOfLength(256)]))
@@ -313,7 +313,7 @@ class BookTest extends TestCase
         );
     }
 
-    public function test_更新_正常系_自身のISBNのままなら重複エラーにならない(): void
+    public function test_更新_正常系_自身の_isb_nのままなら重複エラーにならない(): void
     {
         $book = Book::factory()->create(['user_id' => $this->user->id, 'isbn' => '9784111111111']);
 
@@ -348,7 +348,7 @@ class BookTest extends TestCase
         $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => '元のタイトル']);
     }
 
-    public function test_更新_異常系_他の書籍のISBNと重複するとエラー(): void
+    public function test_更新_異常系_他の書籍の_isb_nと重複するとエラー(): void
     {
         Book::factory()->create(['isbn' => '9784222222222']);
         $book = Book::factory()->create(['user_id' => $this->user->id]);
@@ -367,7 +367,7 @@ class BookTest extends TestCase
             ->assertSessionHasErrors(['title', 'author', 'isbn', 'genres']);
     }
 
-    public function test_更新_異常系_画像URLの形式が不正だとエラー(): void
+    public function test_更新_異常系_画像_ur_lの形式が不正だとエラー(): void
     {
         $book = Book::factory()->create(['user_id' => $this->user->id]);
 
@@ -394,7 +394,7 @@ class BookTest extends TestCase
             ->assertSessionHasErrors('title');
     }
 
-    public function test_更新_境界値_画像URL256文字はエラー(): void
+    public function test_更新_境界値_画像_ur_l256文字はエラー(): void
     {
         $book = Book::factory()->create(['user_id' => $this->user->id]);
 

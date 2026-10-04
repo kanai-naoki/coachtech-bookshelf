@@ -18,7 +18,7 @@ class UserTest extends TestCase
 
     // ---- 正常系 ----
 
-    public function test_genres_はhasManyでGenreを返す(): void
+    public function test_genres_はhas_manyで_genreを返す(): void
     {
         $user = User::factory()->create();
         $genre = Genre::factory()->create(['user_id' => $user->id]);
@@ -27,7 +27,7 @@ class UserTest extends TestCase
         $this->assertTrue($user->genres->first()->is($genre));
     }
 
-    public function test_books_はhasManyでBookを返す(): void
+    public function test_books_はhas_manyで_bookを返す(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
@@ -36,7 +36,7 @@ class UserTest extends TestCase
         $this->assertTrue($user->books->first()->is($book));
     }
 
-    public function test_reviews_はhasManyでReviewを返す(): void
+    public function test_reviews_はhas_manyで_reviewを返す(): void
     {
         $user = User::factory()->create();
         $review = Review::factory()->create(['user_id' => $user->id]);
@@ -45,7 +45,7 @@ class UserTest extends TestCase
         $this->assertTrue($user->reviews->first()->is($review));
     }
 
-    public function test_favoriteBooks_はfavorites経由のbelongsToManyでBookを返す(): void
+    public function test_favorite_books_はfavorites経由のbelongs_to_manyで_bookを返す(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create();
@@ -57,7 +57,7 @@ class UserTest extends TestCase
         $this->assertTrue($user->favoriteBooks->first()->is($book));
     }
 
-    public function test_likedReviews_はreview_likes経由のbelongsToManyでReviewを返す(): void
+    public function test_liked_reviews_はreview_likes経由のbelongs_to_manyで_reviewを返す(): void
     {
         $user = User::factory()->create();
         $review = Review::factory()->create();

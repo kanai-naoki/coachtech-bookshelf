@@ -19,7 +19,7 @@ class BookTest extends TestCase
 
     // ---- 正常系 ----
 
-    public function test_user_はbelongsToでUserを返す(): void
+    public function test_user_はbelongs_toで_userを返す(): void
     {
         $user = User::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
@@ -28,7 +28,7 @@ class BookTest extends TestCase
         $this->assertTrue($book->user->is($user));
     }
 
-    public function test_reviews_はhasManyでReviewを返す(): void
+    public function test_reviews_はhas_manyで_reviewを返す(): void
     {
         $book = Book::factory()->create();
         $reviews = Review::factory()->count(2)->create(['book_id' => $book->id]);
@@ -37,7 +37,7 @@ class BookTest extends TestCase
         $this->assertEqualsCanonicalizing($reviews->pluck('id')->all(), $book->reviews->pluck('id')->all());
     }
 
-    public function test_genres_はbook_genre経由のbelongsToManyでGenreを返す(): void
+    public function test_genres_はbook_genre経由のbelongs_to_manyで_genreを返す(): void
     {
         $book = Book::factory()->create();
         $genre = Genre::factory()->create();
@@ -49,7 +49,7 @@ class BookTest extends TestCase
         $this->assertTrue($book->genres->first()->is($genre));
     }
 
-    public function test_favoriteUsers_はfavorites経由のbelongsToManyでUserを返す(): void
+    public function test_favorite_users_はfavorites経由のbelongs_to_manyで_userを返す(): void
     {
         $book = Book::factory()->create();
         $user = User::factory()->create();
@@ -73,7 +73,7 @@ class BookTest extends TestCase
         $book->genres()->attach($genre->id);
     }
 
-    public function test_存在しないジャンルIDの紐付けは外部キー制約違反(): void
+    public function test_存在しないジャンル_i_dの紐付けは外部キー制約違反(): void
     {
         $book = Book::factory()->create();
 

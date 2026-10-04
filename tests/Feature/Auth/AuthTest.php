@@ -152,7 +152,7 @@ class AuthTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_login_ログイン後はセッションIDが再生成される(): void
+    public function test_login_ログイン後はセッション_i_dが再生成される(): void
     {
         $user = User::factory()->create(['password' => Hash::make('password123')]);
         $this->get('/login');

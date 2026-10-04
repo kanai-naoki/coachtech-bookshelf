@@ -116,14 +116,14 @@ class BookApiReadTest extends TestCase
             ->assertJsonValidationErrors('per_page');
     }
 
-    public function test_存在しないジャンルIDで絞り込むと422(): void
+    public function test_存在しないジャンル_i_dで絞り込むと422(): void
     {
         $this->getJson('/api/v1/books?genre_id=99999')
             ->assertUnprocessable()
             ->assertJsonValidationErrors('genre_id');
     }
 
-    public function test_詳細取得で存在しないIDは404(): void
+    public function test_詳細取得で存在しない_i_dは404(): void
     {
         $this->getJson('/api/v1/books/99999')->assertNotFound();
     }

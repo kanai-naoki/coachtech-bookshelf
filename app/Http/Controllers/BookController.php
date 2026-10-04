@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BookRequest;
 use App\Models\Book;
 use App\Models\Genre;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,8 +15,6 @@ class BookController extends Controller
 {
     /**
      * 書籍一覧画面（トップページ）の表示
-     *
-     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -28,9 +27,6 @@ class BookController extends Controller
 
     /**
      * 書籍詳細画面の表示
-     *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\View\View
      */
     public function show(Book $book): View
     {
@@ -47,8 +43,6 @@ class BookController extends Controller
 
     /**
      * 書籍新規登録画面の表示
-     *
-     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -59,18 +53,16 @@ class BookController extends Controller
 
     /**
      * 書籍新規登録処理
-     *
-     * @param  \App\Http\Requests\BookRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(BookRequest $request): RedirectResponse
     {
         $book = DB::transaction(function () use ($request) {
-            /** @var \App\Models\User $user */
+            /** @var User $user */
             $user = Auth::user();
 
             $book = $user->books()->create($request->validated());
             $book->genres()->sync($request->validated('genres'));
+
             return $book;
         });
 
@@ -80,9 +72,6 @@ class BookController extends Controller
 
     /**
      * 書籍編集画面の表示
-     *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\View\View
      */
     public function edit(Book $book): View
     {
@@ -111,9 +100,6 @@ class BookController extends Controller
 
     /**
      * 書籍削除処理
-     *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Book $book): RedirectResponse
     {

@@ -91,7 +91,8 @@ class RankingTest extends TestCase
         $ranked = $response->viewData('rankedBooks');
         $this->assertCount(10, $ranked);
         // 最低評価(1)の本1・本2は圏外
-        $this->assertEmpty($ranked->pluck('id')->intersect($books->take(2)->pluck('id')));    }
+        $this->assertEmpty($ranked->pluck('id')->intersect($books->take(2)->pluck('id')));
+    }
 
     public function test_ランキング_境界値_ちょうど10件なら全件表示される(): void
     {
