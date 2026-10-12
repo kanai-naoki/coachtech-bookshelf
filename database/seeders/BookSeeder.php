@@ -13,7 +13,7 @@ class BookSeeder extends Seeder
     public function run(): void
     {
         // 登録者（山田太郎）を取得
-        $user = User::first();
+        $users = User::all();
 
         // Faker（日本語対応）の初期化
         $faker = Faker::create('ja_JP');
@@ -108,7 +108,7 @@ class BookSeeder extends Seeder
             $book = Book::firstOrCreate(
                 ['isbn' => $bookData['isbn']],
                 [
-                    'user_id' => $user->id,
+                    'user_id' => $users->random()->id,
                     'title' => $bookData['title'],
                     'author' => $bookData['author'],
                     'published_date' => $bookData['published_date'],
