@@ -33,7 +33,7 @@ class ReviewLikeSeeder extends Seeder
 
                 // Userモデル側（またはReviewモデル側）のリレーションメソッドで syncWithoutDetaching を呼び出す
                 foreach ($likedUsers as $user) {
-                    $user->reviewLikes()->syncWithoutDetaching([$review->id]);
+                    $user->likedReviews()->syncWithoutDetaching([$review->id]);
                 }
             }
         }
