@@ -43,10 +43,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     // Isbn検索（Google Books API）
     Route::get('/books/isbn/{isbn}', [BookSearchController::class, 'show'])->name('books.isbn.search');
-    // 書籍関連（検索・フィルタ・ソート・ページネーションなどの応用対応）
-    Route::get('/books', function () {
-        return '書籍一覧・検索・フィルタ画面 (準備中)';
-    })->name('books.index');
     // マイ読書レポート
     Route::get('/reports', function () {
         return 'マイ読書レポート画面 (準備中)';
