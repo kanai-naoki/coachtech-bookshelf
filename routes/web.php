@@ -6,6 +6,8 @@ use App\Http\Controllers\GenreController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
+use App\Http\Controllers\BookSearchController;
+Route::get('/books/isbn/{isbn}', [BookSearchController::class, 'show'])->name('books.isbn.search');
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,14 +33,55 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('books.reviews', ReviewController::class)
         ->shallow()
         ->only(['store', 'edit', 'update', 'destroy'])->names([
-            'store' => 'reviews.store',
-        ]);
+                'store' => 'reviews.store',
+            ]);
     // レビューいいね
     Route::post('/reviews/{review}/like', ReviewLikeController::class)->name('reviews.like');
     // お気に入り一覧画面
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     // お気に入り（追加・解除）
     Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+    // Isbn検索（Google Books API）
+    Route::get('/books/isbn/{isbn}', [BookSearchController::class, 'show'])->name('books.isbn.search');
+    // 書籍関連（検索・フィルタ・ソート・ページネーションなどの応用対応）
+    Route::get('/books', function () {
+        return '書籍一覧・検索・フィルタ画面 (準備中)';
+    })->name('books.index');
+    // マイ読書レポート
+    Route::get('/reports', function () {
+        return 'マイ読書レポート画面 (準備中)';
+    })->name('reports.index');
+
+    // 読書計画（一覧、作成、編集、完了など）
+    Route::get('/reading-plans', function () {
+        return '読書計画一覧画面 (準備中)';
+    })->name('reading-plans.index');
+    Route::get('/reading-plans/create', function () {
+        return '読書計画作成画面 (準備中)';
+    })->name('reading-plans.create');
+    Route::post('/reading-plans', function () {
+        // 登録処理
+    })->name('reading-plans.store');
+    Route::get('/reading-plans/{plan}/edit', function ($plan) {
+        return "読書計画編集画面 ID: {$plan} (準備中)";
+    })->name('reading-plans.edit');
+    Route::put('/reading-plans/{plan}', function ($plan) {
+        // 更新処理
+    })->name('reading-plans.update');
+    Route::post('/reading-plans/{plan}/complete', function ($plan) {
+        // 読了する処理
+    })->name('reading-plans.complete');
+    Route::delete('/reading-plans/{plan}', function ($plan) {
+        // 削除処理
+    })->name('reading-plans.destroy');
+
+    // 通知一覧
+    Route::get('/notifications', function () {
+        return '通知一覧画面 (準備中)';
+    })->name('notifications.index');
+    Route::post('/notifications/{id}/read', function ($id) {
+        // 既読にする処理
+    })->name('notifications.read');
 });
 
 // ２. 誰でもアクセス可能なルート（ゲスト可）
