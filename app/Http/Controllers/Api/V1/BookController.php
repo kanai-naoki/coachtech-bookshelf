@@ -54,6 +54,8 @@ class BookController extends Controller
         $genreIds = $validated['genre_ids'];
         unset($validated['genre_ids']);
 
+        $validated['user_id'] = $request->user()->id;
+
         // 書籍レコード作成
         $book = Book::create($validated);
 
@@ -87,6 +89,8 @@ class BookController extends Controller
      */
     public function update(BookUpdateRequest $request, Book $book): BookResource
     {
+        $this->authorize('update', $book);
+
         $validated = $request->validated();
         $genreIds = $validated['genre_ids'];
         unset($validated['genre_ids']);
@@ -110,6 +114,8 @@ class BookController extends Controller
      */
     public function destroy(Book $book): Response
     {
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return response()->noContent(); // 204 No Content

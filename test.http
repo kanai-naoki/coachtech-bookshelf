@@ -1,3 +1,7 @@
+###
+### === 基本機能：書籍情報取得・書籍CRUDのAPIテスト ===
+###
+
 ### 1. 一覧取得 (GET)
 GET http://localhost/api/v1/books
 Accept: application/json
@@ -49,4 +53,66 @@ Accept: application/json
 
 ### 8. 存在しないIDへのリクエスト検証 (GET) - 404確認
 GET http://localhost/api/v1/books/99999
+Accept: application/json
+
+
+###
+### === 応用機能：認証・認可・保護APIのテスト ===
+###
+
+### 9. ログイン（アクセストークン取得）
+# @name login
+POST http://localhost/api/v1/login
+Content-Type: application/json
+Accept: application/json
+
+{
+    "email": "popi@example.com",
+    "password": "popiworld"
+}
+
+### 10. 取得したトークンを変数に保持
+@token = {{login.response.body.access_token}}
+
+
+### 11. 新規登録（Sanctum認証必須・要トークン）
+# ※ Sanctum導入に伴い、リクエストボディから "user_id" は削除しています
+POST http://localhost/api/v1/books
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "title": "認証テスト用新規書籍",
+    "author": "テスト著者",
+    "isbn": "9784123456797",
+    "published_date": "2026-10-17",
+    "description": "Sanctum認証を通した新規登録テストです。",
+    "genre_ids": [1]
+}
+
+
+### 12. 更新（認証必須・所有者のみOK）
+PUT http://localhost/api/v1/books/11
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "title": "認証テスト用書籍（更新済み）",
+    "author": "テスト著者",
+    "isbn": "9784822251468",
+    "published_date": "2026-10-17",
+    "description": "更新テストです。",
+    "genre_ids": [1]
+}
+
+### 13. 書籍の削除（認証必須・所有者のみOK）
+DELETE http://localhost/api/v1/books/11
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### 14. ログアウト（トークン削除）
+POST http://localhost/api/v1/logout
+Authorization: Bearer {{token}}
 Accept: application/json
