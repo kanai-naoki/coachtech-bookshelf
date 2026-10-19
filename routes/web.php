@@ -7,6 +7,7 @@ use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\BookSearchController;
+use App\Http\Controllers\ReadingPlanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,14 +22,14 @@ use Illuminate\Support\Facades\Route;
 */
 // １．ログインユーザーのみ利用できる機能
 Route::middleware(['auth'])->group(function () {
-    // ジャンル一覧・詳細・編集（追加・削除）
+    // ジャンル一覧・詳細・CRUD
     Route::resource('genres', GenreController::class);
-    // 書籍登録・編集・削除
+    // 書籍CRUD
     Route::resource('books', BookController::class)->except([
         'index',
         'show',
     ]);
-    // レビュー投稿・編集・削除
+    // レビューCRUD
     Route::resource('books.reviews', ReviewController::class)
         ->shallow()
         ->only(['store', 'edit', 'update', 'destroy'])->names([
@@ -46,29 +47,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports', function () {
         return 'マイ読書レポート画面 (準備中)';
     })->name('reports.index');
-
-    // 読書計画（一覧、作成、編集、完了など）
-    Route::get('/reading-plans', function () {
-        return '読書計画一覧画面 (準備中)';
-    })->name('reading-plans.index');
-    Route::get('/reading-plans/create', function () {
-        return '読書計画作成画面 (準備中)';
-    })->name('reading-plans.create');
-    Route::post('/reading-plans', function () {
-        // 登録処理
-    })->name('reading-plans.store');
-    Route::get('/reading-plans/{plan}/edit', function ($plan) {
-        return "読書計画編集画面 ID: {$plan} (準備中)";
-    })->name('reading-plans.edit');
-    Route::put('/reading-plans/{plan}', function ($plan) {
-        // 更新処理
-    })->name('reading-plans.update');
-    Route::post('/reading-plans/{plan}/complete', function ($plan) {
-        // 読了する処理
-    })->name('reading-plans.complete');
-    Route::delete('/reading-plans/{plan}', function ($plan) {
-        // 削除処理
-    })->name('reading-plans.destroy');
+    // 読書計画一覧・CRUD
+    Route::resource('reading-plans', ReadingPlanController::class)->except(['show']);
+    // 読書計画 「読了」処理 (POST /reading-plans/{reading_plan}/complete)
+    Route::post('/reading-plans/{reading_plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
 
     // 通知一覧
     Route::get('/notifications', function () {
