@@ -8,6 +8,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\BookSearchController;
 use App\Http\Controllers\ReadingPlanController;
+use App\Http\Controllers\ReadingReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,15 +44,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     // Isbn検索（Google Books API）
     Route::get('/books/isbn/{isbn}', [BookSearchController::class, 'show'])->name('books.isbn.search');
-    // マイ読書レポート
-    Route::get('/reports', function () {
-        return 'マイ読書レポート画面 (準備中)';
-    })->name('reports.index');
     // 読書計画一覧・CRUD
     Route::resource('reading-plans', ReadingPlanController::class)->except(['show']);
     // 読書計画 「読了」処理 (POST /reading-plans/{reading_plan}/complete)
     Route::post('/reading-plans/{reading_plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
-
     // 通知一覧
     Route::get('/notifications', function () {
         return '通知一覧画面 (準備中)';
@@ -59,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/{id}/read', function ($id) {
         // 既読にする処理
     })->name('notifications.read');
+    // マイ読書レポート
+    Route::get('/reports', [ReadingReportController::class, 'index'])->name('reports.index');
 });
 
 // ２. 誰でもアクセス可能なルート（ゲスト可）
