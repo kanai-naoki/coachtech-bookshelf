@@ -9,6 +9,7 @@ use App\Http\Controllers\ReviewLikeController;
 use App\Http\Controllers\BookSearchController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\ReadingReportController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,12 +50,9 @@ Route::middleware(['auth'])->group(function () {
     // 読書計画 「読了」処理 (POST /reading-plans/{reading_plan}/complete)
     Route::post('/reading-plans/{reading_plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
     // 通知一覧
-    Route::get('/notifications', function () {
-        return '通知一覧画面 (準備中)';
-    })->name('notifications.index');
-    Route::post('/notifications/{id}/read', function ($id) {
-        // 既読にする処理
-    })->name('notifications.read');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    // 通知既読化
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     // マイ読書レポート
     Route::get('/reports', [ReadingReportController::class, 'index'])->name('reports.index');
 });
