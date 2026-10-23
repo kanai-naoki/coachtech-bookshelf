@@ -60,7 +60,7 @@ class ReadingPlanController extends Controller
             'user_id' => $request->user()->id,
             'book_id' => $request->validated('book_id'),
             'target_date' => $request->validated('target_date'),
-            'status' => ReadingPlanStatus::Unread,
+            'status' => ReadingPlanStatus::InProgress,
         ]);
 
         return redirect()
@@ -92,9 +92,20 @@ class ReadingPlanController extends Controller
     {
         $this->authorize('update', $readingPlan);
 
-        $readingPlan->update([
-            'target_date' => $request->validated('target_date'),
-        ]);
+        $targetDate = $request->validated('target_date');
+
+        // 基本の更新データ
+        $updateData = [
+            'target_date' => $targetDate,
+        ];
+
+        // もし現在「期限切れ（Expired）」で、更新後の日付が今日以降（未来）の場合、
+        // ステータスを「進行中（InProgress）」に自動で戻す
+        if ($readingPlan->status === ReadingPlanStatus::Expired && \Carbon\Carbon::parse($targetDate)->isFuture()) {
+            $updateData['status'] = ReadingPlanStatus::InProgress;
+        }
+
+        $readingPlan->update($updateData);
 
         return redirect()
             ->route('reading-plans.index')
@@ -135,6 +146,6 @@ class ReadingPlanController extends Controller
 
         return redirect()
             ->route('reading-plans.index')
-            ->with('success', '読了に設定しました。');
+            ->with('success', '読書計画機能を完了しました。');
     }
 }

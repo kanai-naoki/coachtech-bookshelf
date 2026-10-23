@@ -43,12 +43,19 @@ class ReadingPlanReminder extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        // フロントエンド側が参照しているキー名 ('title', 'body', 'timing') に完全に一致させる
         $bookTitle = $this->plan->book->title ?? '書籍';
+
+        // タイミングに応じた文言の出し分け
+        $body = match ($this->reminderType) { // プロパティ名は実際のコードに合わせて調整してください
+            'three_days_before' => "読書計画「{$bookTitle}」の期限は3日後です。",
+            'on_due_date' => "読書計画「{$bookTitle}」の期限は本日です。",
+            'three_days_after' => "読書計画「{$bookTitle}」の期限が過ぎています。",
+            default => "読書計画「{$bookTitle}」の期限が近づいています。",
+        };
 
         return [
             'title' => '読書計画のリマインダー',
-            'body' => '読書計画「' . $bookTitle . '」の期限が近づいています。',
+            'body' => $body,
             'timing' => $this->reminderType,
         ];
     }

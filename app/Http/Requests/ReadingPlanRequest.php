@@ -23,7 +23,6 @@ class ReadingPlanRequest extends FormRequest
      */
     public function rules(): array
     {
-        // 新規作成時のみ book_id を必須とし、更新時は送られてこない/変更不可の場合にも対応できる記述例
         return [
             'book_id' => $this->isMethod('post')
                 ? [
@@ -31,11 +30,21 @@ class ReadingPlanRequest extends FormRequest
                     'integer',
                     'exists:books,id',
                     Rule::unique('reading_plans', 'book_id')->where(function ($query) {
-                        return $query->where('user_id', $this->user()->id);
+                        return $query->where('user_id', $this->user()->id)
+                            ->where('status', \App\Enums\ReadingPlanStatus::InProgress->value);
                     }),
                 ]
-                : ['sometimes', 'integer', 'exists:books,id'],
-            'target_date' => ['required', 'date', 'after_or_equal:today'],
+                : [
+                    'sometimes',
+                    'integer',
+                    'exists:books,id'
+                ],
+
+            'target_date' => [
+                'required',
+                'date',
+                'after_or_equal:today'
+            ],
         ];
     }
 
@@ -47,9 +56,9 @@ class ReadingPlanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'book_id.required' => '書籍は必須です。',
-            'book_id.exists' => '選択された書籍が存在しません。',
-            'book_id.unique' => 'この書籍の読書計画はすでに登録されています。',
+            'book_id.required' => '書籍を選択してください。',
+            'book_id.exists' => '選択された書籍は存在しません。',
+            'book_id.unique' => 'この書籍は既に進行中の読書計画が存在します。',
             'target_date.required' => '期日は必須です。',
             'target_date.date' => '期日は有効な日付形式で入力してください。',
             'target_date.after_or_equal' => '期日は今日以降の日付を指定してください。',
