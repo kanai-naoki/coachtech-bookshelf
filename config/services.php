@@ -21,6 +21,11 @@ return [
         'scheme' => 'https',
     ],
 
+    'google_books' => [
+        'key' => env('GOOGLE_BOOKS_API_KEY'),
+        'endpoint' => 'https://www.googleapis.com/books/v1/volumes',
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -6,69 +6,38 @@ use Illuminate\Http\Request;
 use App\Http\Requests\BookRequest;
 use App\Models\Book;
 use App\Models\Genre;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class BookController extends Controller
 {
     /**
-     * 書籍一覧画面（トップページ）の表示
+     * 書籍一覧画面（トップページ）の表示。
+     * キーワード検索・ジャンル絞り込み・並び替え・ページネーションに対応する。
+     *
+     * @param Request $request keyword / genre / sort を受け取るリクエスト
+     * @return View
      */
     public function index(Request $request): View
     {
-        $query = Book::with(['genres', 'reviews']);
+        $books = Book::with(['genres', 'reviews'])
+            ->search($request->input('keyword'))
+            ->inGenre($request->input('genre'))
+            ->sortedBy((string) $request->input('sort', 'latest'))
+            ->paginate(10)
+            ->appends($request->query());
 
-        // 1. キーワード検索（title または author の部分一致）
-        if ($request->filled('keyword')) {
-            $keyword = $request->input('keyword');
-            $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                    ->orWhere('author', 'like', "%{$keyword}%");
-            });
-        }
-
-        // 2. ジャンルフィルタ
-        if ($request->filled('genre')) {
-            $query->whereHas('genres', function ($q) use ($request) {
-                $q->where('genres.id', $request->input('genre'));
-            });
-        }
-
-        // 3. ソート順の変更
-        $sort = $request->input('sort', 'latest');
-        switch ($sort) {
-            case 'oldest':
-                $query->oldest();
-                break;
-            case 'title':
-                $query->orderBy('title', 'asc');
-                break;
-            case 'rating':
-                // 評価が高い順（レビューがない書籍は最後に配置）
-                $query->withAvg('reviews', 'rating')
-                    ->orderByRaw('reviews_avg_rating IS NULL DESC')
-                    ->orderBy('reviews_avg_rating', 'desc');
-                break;
-            case 'latest':
-            default:
-                $query->latest();
-                break;
-        }
-
-        // 4. ページネーション（検索条件のクエリパラメータを維持）
-        $books = $query->paginate(10)->appends($request->query());
-
-        // 絞り込み用のジャンル一覧も一緒にビューへ渡しておくと親切です
         $genres = Genre::all();
 
         return view('books.index', compact('books', 'genres'));
     }
 
     /**
-     * 書籍詳細画面の表示
+     * 書籍詳細画面の表示（ジャンル、投稿者・いいね件数付きレビューを一括取得）。
+     *
+     * @param Book $book ルートモデルバインディングされた書籍
+     * @return View
      */
     public function show(Book $book): View
     {
@@ -84,7 +53,9 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍新規登録画面の表示
+     * 書籍新規登録画面の表示。
+     *
+     * @return View
      */
     public function create(): View
     {
@@ -94,15 +65,15 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍新規登録処理
+     * 書籍新規登録処理。書籍とジャンルの紐付けを1トランザクションで行う。
+     *
+     * @param BookRequest $request 検証済みの書籍入力
+     * @return RedirectResponse 登録した書籍の詳細画面へのリダイレクト
      */
     public function store(BookRequest $request): RedirectResponse
     {
-        $book = DB::transaction(function () use ($request) {
-            /** @var User $user */
-            $user = Auth::user();
-
-            $book = $user->books()->create($request->validated());
+        $book = DB::transaction(function () use ($request): Book {
+            $book = $request->user()->books()->create($request->safe()->except('genres'));
             $book->genres()->sync($request->validated('genres'));
 
             return $book;
@@ -113,7 +84,10 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍編集画面の表示
+     * 書籍編集画面の表示（登録者本人のみ）。
+     *
+     * @param Book $book 編集対象の書籍
+     * @return View
      */
     public function edit(Book $book): View
     {
@@ -125,14 +99,18 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍更新処理
+     * 書籍更新処理（登録者本人のみ）。書籍とジャンルの更新を1トランザクションで行う。
+     *
+     * @param BookRequest $request 検証済みの書籍入力
+     * @param Book $book 更新対象の書籍
+     * @return RedirectResponse
      */
     public function update(BookRequest $request, Book $book): RedirectResponse
     {
         $this->authorize('update', $book);
 
-        DB::transaction(function () use ($request, $book) {
-            $book->update($request->validated());
+        DB::transaction(function () use ($request, $book): void {
+            $book->update($request->safe()->except('genres'));
             $book->genres()->sync($request->validated('genres'));
         });
 
@@ -141,13 +119,16 @@ class BookController extends Controller
     }
 
     /**
-     * 書籍削除処理
+     * 書籍削除処理（登録者本人のみ）。ジャンル紐付けの解除と削除を1トランザクションで行う。
+     *
+     * @param Book $book 削除対象の書籍
+     * @return RedirectResponse
      */
     public function destroy(Book $book): RedirectResponse
     {
         $this->authorize('delete', $book);
 
-        DB::transaction(function () use ($book) {
+        DB::transaction(function () use ($book): void {
             $book->genres()->detach();
             $book->delete();
         });

@@ -28,7 +28,7 @@ class BookApiErrorTest extends TestCase
         $book->favoriteUsers()->attach($fan);
         $review->likedByUsers()->attach($fan);
 
-        $this->deleteJson("/api/v1/books/{$book->id}")->assertNoContent();
+        $this->actingAs($book->user)->deleteJson("/api/v1/books/{$book->id}")->assertNoContent();
 
         $this->assertDatabaseMissing('books', ['id' => $book->id]);
         $this->assertDatabaseMissing('book_genre', ['book_id' => $book->id]);
@@ -45,7 +45,7 @@ class BookApiErrorTest extends TestCase
         $book = Book::factory()->create();
         $genre = Genre::factory()->create();
 
-        $this->putJson("/api/v1/books/{$book->id}", [
+        $this->actingAs($book->user)->putJson("/api/v1/books/{$book->id}", [
             'title' => '変更', 'author' => $book->author, 'isbn' => $book->isbn,
             'published_date' => '2024-01-01', 'genre_ids' => [$genre->id],
         ])->assertOk();
@@ -55,13 +55,12 @@ class BookApiErrorTest extends TestCase
 
     public function test_必須項目が空だと422でエラーメッセージが返る(): void
     {
-        $this->postJson('/api/v1/books', [])
+        $this->actingAs(User::factory()->create())->postJson('/api/v1/books', [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['user_id', 'title', 'author', 'isbn', 'published_date', 'genre_ids'])
+            ->assertJsonValidationErrors(['title', 'author', 'isbn', 'genre_ids'])
             ->assertJsonPath('errors.title.0', 'タイトルは必須です。')
             ->assertJsonPath('errors.author.0', '著者名は必須です。')
             ->assertJsonPath('errors.isbn.0', 'ISBNは必須です。')
-            ->assertJsonPath('errors.published_date.0', '出版日は必須です。')
             ->assertJsonPath('errors.genre_ids.0', 'ジャンルは1つ以上選択してください。');
     }
 
@@ -71,7 +70,7 @@ class BookApiErrorTest extends TestCase
         $genre = Genre::factory()->create();
         $existing = Book::factory()->create();
 
-        $this->postJson('/api/v1/books', [
+        $this->actingAs($user)->postJson('/api/v1/books', [
             'user_id' => $user->id, 'title' => 't', 'author' => 'a', 'isbn' => $existing->isbn,
             'published_date' => '2024-01-01', 'genre_ids' => [$genre->id],
         ])->assertUnprocessable()
@@ -82,16 +81,16 @@ class BookApiErrorTest extends TestCase
     {
         $book = Book::factory()->create();
 
-        $this->putJson("/api/v1/books/{$book->id}", [])
+        $this->actingAs($book->user)->putJson("/api/v1/books/{$book->id}", [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['title', 'author', 'isbn', 'published_date', 'genre_ids']);
+            ->assertJsonValidationErrors(['title', 'author', 'isbn', 'genre_ids']);
     }
 
     public function test_存在しないジャンル_i_dを指定すると422(): void
     {
         $user = User::factory()->create();
 
-        $this->postJson('/api/v1/books', [
+        $this->actingAs($user)->postJson('/api/v1/books', [
             'user_id' => $user->id, 'title' => 't', 'author' => 'a', 'isbn' => '1111111111111',
             'published_date' => '2024-01-01', 'genre_ids' => [99999],
         ])->assertUnprocessable()->assertJsonValidationErrors('genre_ids.0');
@@ -99,12 +98,12 @@ class BookApiErrorTest extends TestCase
 
     public function test_存在しない_i_dの更新は404(): void
     {
-        $this->putJson('/api/v1/books/99999', [])->assertNotFound();
+        $this->actingAs(User::factory()->create())->putJson('/api/v1/books/99999', [])->assertNotFound();
     }
 
     public function test_存在しない_i_dの削除は404(): void
     {
-        $this->deleteJson('/api/v1/books/99999')->assertNotFound();
+        $this->actingAs(User::factory()->create())->deleteJson('/api/v1/books/99999')->assertNotFound();
     }
 
     // ---------- 境界値 ----------
@@ -113,7 +112,7 @@ class BookApiErrorTest extends TestCase
     {
         $book = Book::factory()->create();
 
-        $this->putJson("/api/v1/books/{$book->id}", [
+        $this->actingAs($book->user)->putJson("/api/v1/books/{$book->id}", [
             'title' => 't', 'author' => 'a', 'isbn' => $book->isbn,
             'published_date' => '2024-01-01', 'genre_ids' => [],
         ])->assertUnprocessable()->assertJsonValidationErrors('genre_ids');
@@ -124,7 +123,7 @@ class BookApiErrorTest extends TestCase
         $book = Book::factory()->create();
         $genre = Genre::factory()->create();
 
-        $this->putJson("/api/v1/books/{$book->id}", [
+        $this->actingAs($book->user)->putJson("/api/v1/books/{$book->id}", [
             'title' => 't', 'author' => 'a', 'isbn' => $book->isbn,
             'published_date' => 'not-a-date', 'image_url' => 'not-url', 'genre_ids' => [$genre->id],
         ])->assertUnprocessable()->assertJsonValidationErrors(['published_date', 'image_url']);

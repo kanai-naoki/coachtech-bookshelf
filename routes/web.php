@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
     // お気に入り（追加・解除）
     Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
     // Isbn検索（Google Books API）
-    Route::get('/books/isbn/{isbn}', [BookSearchController::class, 'show'])->name('books.isbn.search');
+    Route::get('/books/isbn/{isbn?}', [BookSearchController::class, 'show'])->name('books.isbn.search');
     // 読書計画一覧・CRUD
     Route::resource('reading-plans', ReadingPlanController::class)->except(['show']);
     // 読書計画 「読了」処理 (POST /reading-plans/{reading_plan}/complete)

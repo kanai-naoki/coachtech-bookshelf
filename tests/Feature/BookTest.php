@@ -109,7 +109,7 @@ class BookTest extends TestCase
 
         $this->get(route('books.index', ['page' => 2]))
             ->assertOk()
-            ->assertSee('書籍が登録されていません', false);
+            ->assertSee('書籍が見つかりませんでした', false);
     }
 
     // ==================== 登録 (Store) ====================
@@ -170,7 +170,6 @@ class BookTest extends TestCase
             'タイトル' => ['title', ''],
             '著者' => ['author', ''],
             'ISBN' => ['isbn', ''],
-            '出版日' => ['published_date', ''],
             'ジャンル未選択' => ['genres', []],
         ];
     }

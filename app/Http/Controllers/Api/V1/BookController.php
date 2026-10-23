@@ -11,113 +11,111 @@ use App\Models\Book;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
     /**
-     * 書籍一覧取得 (GET /api/v1/books)
+     * 書籍一覧取得 (GET /api/v1/books)。
+     * キーワード検索・ジャンル絞り込み・ページネーションに対応する。
+     *
+     * @param BookIndexRequest $request keyword / genre_id / per_page を含む検証済みリクエスト
+     * @return AnonymousResourceCollection
      */
     public function index(BookIndexRequest $request): AnonymousResourceCollection
     {
-        $perPage = $request->input('per_page', 20);
-
-        $query = Book::with('genres')
+        $books = Book::with('genres')
             ->withAvg('reviews', 'rating')
-            ->withCount('reviews');
-
-        // キーワード検索（タイトル・著者名）
-        if ($keyword = $request->input('keyword')) {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                    ->orWhere('author', 'like', "%{$keyword}%");
-            });
-        }
-
-        // ジャンル絞り込み
-        if ($genreId = $request->input('genre_id')) {
-            $query->whereHas('genres', function ($q) use ($genreId) {
-                $q->where('genres.id', $genreId);
-            });
-        }
-
-        $books = $query->latest()->paginate($perPage);
+            ->withCount('reviews')
+            ->search($request->input('keyword'))
+            ->inGenre($request->input('genre_id'))
+            ->latest()
+            ->paginate((int) $request->input('per_page', 20));
 
         return BookResource::collection($books);
     }
 
     /**
-     * 書籍新規登録 (POST /api/v1/books)
+     * 書籍新規登録 (POST /api/v1/books)。書籍とジャンル紐付けを1トランザクションで行う。
+     *
+     * @param BookStoreRequest $request 検証済みの書籍入力
+     * @return JsonResponse 201 Created
      */
     public function store(BookStoreRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-        $genreIds = $validated['genre_ids'];
-        unset($validated['genre_ids']);
+        $book = DB::transaction(function () use ($request): Book {
+            $book = Book::create(
+                $request->safe()->except('genre_ids') + ['user_id' => $request->user()->id]
+            );
+            $book->genres()->sync($request->validated('genre_ids'));
 
-        $validated['user_id'] = $request->user()->id;
+            return $book;
+        });
 
-        // 書籍レコード作成
-        $book = Book::create($validated);
-
-        // ジャンル（中間テーブル）の同期
-        $book->genres()->sync($genreIds);
-
-        // レスポンス用のリレーションおよび集計値のロード
-        $book->load('genres')
-            ->loadAvg('reviews', 'rating')
-            ->loadCount('reviews');
-
-        return (new BookResource($book))
+        return (new BookResource($this->loadDetails($book)))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED); // 201 Created
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
-     * 書籍詳細取得 (GET /api/v1/books/{book})
+     * 書籍詳細取得 (GET /api/v1/books/{book})。
+     *
+     * @param Book $book ルートモデルバインディングされた書籍
+     * @return BookResource
      */
     public function show(Book $book): BookResource
     {
-        $book->load('genres')
-            ->loadAvg('reviews', 'rating')
-            ->loadCount('reviews');
-
-        return new BookResource($book);
+        return new BookResource($this->loadDetails($book));
     }
 
     /**
-     * 書籍更新 (PUT/PATCH /api/v1/books/{book})
+     * 書籍更新 (PUT/PATCH /api/v1/books/{book})（登録者本人のみ）。
+     * 書籍とジャンル紐付けの更新を1トランザクションで行う。
+     *
+     * @param BookUpdateRequest $request 検証済みの書籍入力
+     * @param Book $book 更新対象の書籍
+     * @return BookResource 200 OK
      */
     public function update(BookUpdateRequest $request, Book $book): BookResource
     {
         $this->authorize('update', $book);
 
-        $validated = $request->validated();
-        $genreIds = $validated['genre_ids'];
-        unset($validated['genre_ids']);
+        DB::transaction(function () use ($request, $book): void {
+            $book->update($request->safe()->except('genre_ids'));
+            $book->genres()->sync($request->validated('genre_ids'));
+        });
 
-        // 書籍レコード更新
-        $book->update($validated);
-
-        // ジャンル（中間テーブル）の同期
-        $book->genres()->sync($genreIds);
-
-        // レスポンス用のリレーションおよび集計値のロード
-        $book->load('genres')
-            ->loadAvg('reviews', 'rating')
-            ->loadCount('reviews');
-
-        return new BookResource($book); // 200 OK
+        return new BookResource($this->loadDetails($book));
     }
 
     /**
-     * 書籍削除 (DELETE /api/v1/books/{book})
+     * 書籍削除 (DELETE /api/v1/books/{book})（登録者本人のみ）。
+     *
+     * @param Book $book 削除対象の書籍
+     * @return Response 204 No Content
      */
     public function destroy(Book $book): Response
     {
         $this->authorize('delete', $book);
 
-        $book->delete();
+        DB::transaction(function () use ($book): void {
+            $book->genres()->detach();
+            $book->delete();
+        });
 
-        return response()->noContent(); // 204 No Content
+        return response()->noContent();
+    }
+
+    /**
+     * レスポンス用にジャンルと評価の集計値（平均・件数）を読み込む。
+     *
+     * @param Book $book 対象の書籍
+     * @return Book 読み込み済みの同じインスタンス
+     */
+    private function loadDetails(Book $book): Book
+    {
+        return $book->load('genres')
+            ->loadAvg('reviews', 'rating')
+            ->loadCount('reviews');
     }
 }

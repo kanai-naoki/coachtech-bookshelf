@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,52 +13,40 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * APIトークンの発行（ログイン）
+     * APIトークンの発行（ログイン）。
      *
-     * @param Request $request
-     * @return JsonResponse
-     * @throws ValidationException
+     * @param LoginRequest $request email / password を含む検証済みリクエスト
+     * @return JsonResponse access_token と token_type を含むJSON
+     * @throws ValidationException 認証情報が正しくない場合
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $user = User::where('email', $request->validated('email'))->first();
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['認証情報が正しくありません。'],
             ]);
         }
 
-        // Sanctumアクセストークンの発行
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json([
-            'access_token' => $token,
+            'access_token' => $user->createToken('auth_token')->plainTextToken,
             'token_type' => 'Bearer',
         ]);
     }
 
     /**
-     * APIトークンの削除（ログアウト）
+     * APIトークンの削除（ログアウト）。現在のリクエストで使用中のトークンのみ削除する。
      *
-     * @param Request $request
+     * @param Request $request 認証済みユーザーを含むリクエスト
      * @return JsonResponse
      */
     public function logout(Request $request): JsonResponse
     {
         /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
-
-        // 現在のリクエストで使用されているトークンを取得して削除
         $token = $request->user()->currentAccessToken();
 
-        if ($token) {
-            $token->delete();
-        }
+        $token?->delete();
 
         return response()->json([
             'message' => 'ログアウトしました。',

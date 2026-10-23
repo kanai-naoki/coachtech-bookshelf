@@ -2,45 +2,77 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ReadingPlanStatus;
+use App\Models\ReadingPlan;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Console\Command;
-use App\Models\ReadingPlan; // 読書計画モデル
-use App\Notifications\ReadingPlanReminder; // 通知クラス
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class SendReadingPlanReminders extends Command
 {
+    /**
+     * コマンド名。
+     *
+     * @var string
+     */
     protected $signature = 'reminders:send-reading-plans';
+
+    /**
+     * コマンドの説明。
+     *
+     * @var string
+     */
     protected $description = '期限が近づいた、または超過した読書計画のリマインダー通知を送信する';
 
-    public function handle()
+    /**
+     * 期限の3日前・当日・3日後の読書計画の所有者へ通知を送る。
+     * 通知の保存は1トランザクションで行い、途中で失敗した場合は1件も残さない。
+     *
+     * @return int 終了コード
+     */
+    public function handle(): int
     {
-        $today = now()->toDateString();
-        $threeDaysLater = now()->addDays(3)->toDateString();
-        $threeDaysAgo = now()->subDays(3)->toDateString();
+        $sent = DB::transaction(
+            fn (): int => $this->reminderRules()->sum(fn (array $rule): int => $this->notify($rule))
+        );
 
-        // 1. 【3日前】の計画を取得して通知
-        $plansThreeDaysBefore = ReadingPlan::whereDate('target_date', $threeDaysLater)->get();
-        foreach ($plansThreeDaysBefore as $plan) {
-            if ($plan->user) {
-                $plan->user->notify(new ReadingPlanReminder($plan, 'three_days_before'));
-            }
-        }
+        $this->info("読書計画のリマインダー通知を {$sent} 件送信しました。");
 
-        // 2. 【当日】の計画を取得して通知
-        $plansToday = ReadingPlan::whereDate('target_date', $today)->get();
-        foreach ($plansToday as $plan) {
-            if ($plan->user) {
-                $plan->user->notify(new ReadingPlanReminder($plan, 'due_date'));
-            }
-        }
+        return self::SUCCESS;
+    }
 
-        // 3. 【3日後（超過）】の計画を取得して通知（必要ならステータス変更もここで）
-        $plansThreeDaysAgo = ReadingPlan::whereDate('target_date', $threeDaysAgo)->get();
-        foreach ($plansThreeDaysAgo as $plan) {
-            if ($plan->user) {
-                $plan->user->notify(new ReadingPlanReminder($plan, 'three_days_after'));
-            }
-        }
+    /**
+     * 通知タイミングごとの対象日・対象ステータス・タイミング識別子を返す。
+     *
+     * @return Collection<int, array{date: string, timing: string, statuses: array<int, string>}>
+     */
+    private function reminderRules(): Collection
+    {
+        $inProgress = ReadingPlanStatus::InProgress->value;
+        $expired = ReadingPlanStatus::Expired->value;
 
-        $this->info('読書計画のリマインダー通知および日次パッチ処理が完了しました。');
+        return collect([
+            ['date' => now()->addDays(3)->toDateString(), 'timing' => 'three_days_before', 'statuses' => [$inProgress]],
+            ['date' => now()->toDateString(), 'timing' => 'on_due_date', 'statuses' => [$inProgress]],
+            ['date' => now()->subDays(3)->toDateString(), 'timing' => 'three_days_after', 'statuses' => [$inProgress, $expired]],
+        ]);
+    }
+
+    /**
+     * 1つの通知ルールに該当する読書計画の所有者へ通知する。
+     *
+     * @param array{date: string, timing: string, statuses: array<int, string>} $rule 通知ルール
+     * @return int 通知した件数
+     */
+    private function notify(array $rule): int
+    {
+        return ReadingPlan::with(['user', 'book'])
+            ->dueOn($rule['date'])
+            ->whereIn('status', $rule['statuses'])
+            ->get()
+            ->filter(fn (ReadingPlan $plan): bool => $plan->user !== null)
+            ->each(fn (ReadingPlan $plan) => $plan->user->notify(new ReadingPlanReminder($plan, $rule['timing'])))
+            ->count();
     }
 }
