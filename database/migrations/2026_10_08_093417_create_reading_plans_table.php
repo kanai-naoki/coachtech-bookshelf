@@ -13,10 +13,9 @@ return new class extends Migration {
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
             $table->date('target_date');
             $table->timestamp('completed_at')->nullable();
-            $table->string('status')->default('unread');
+            $table->string('status')->default('in_progress');
             $table->timestamps();
 
-            $table->unique(['user_id', 'book_id']);
         });
     }
 

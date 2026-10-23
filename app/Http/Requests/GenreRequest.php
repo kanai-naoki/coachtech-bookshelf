@@ -7,11 +7,19 @@ use Illuminate\Validation\Rule;
 
 class GenreRequest extends FormRequest
 {
+    /**
+     * リクエストの実行が認可されているかを判定（認証はミドルウェアで担保）。
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * バリデーションルールの定義。
+     *
+     * @return array<string, array<int, mixed>>
+     */
     public function rules(): array
     {
         $genre = $this->route('genre');
@@ -28,6 +36,11 @@ class GenreRequest extends FormRequest
         ];
     }
 
+    /**
+     * カスタムエラーメッセージの定義。
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

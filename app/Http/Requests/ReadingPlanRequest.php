@@ -2,10 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ReadingPlanStatus;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 
+/**
+ * 読書計画の登録・更新リクエスト。登録時は同一ユーザー・同一書籍の「進行中」の重複のみ禁止する（読了済み・期限切れかどうかはバリデーション側のstatus絞り込みで判定）。
+ */
 class ReadingPlanRequest extends FormRequest
 {
     /**
@@ -29,10 +34,10 @@ class ReadingPlanRequest extends FormRequest
                     'required',
                     'integer',
                     'exists:books,id',
-                    Rule::unique('reading_plans', 'book_id')->where(function ($query) {
-                        return $query->where('user_id', $this->user()->id)
-                            ->where('status', \App\Enums\ReadingPlanStatus::InProgress->value);
-                    }),
+                    Rule::unique('reading_plans', 'book_id')
+                        ->where(fn (Builder $query): Builder => $query
+                            ->where('user_id', $this->user()->id)
+                            ->where('status', ReadingPlanStatus::InProgress->value)),
                 ]
                 : [
                     'sometimes',

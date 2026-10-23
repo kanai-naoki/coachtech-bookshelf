@@ -2,47 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ExternalApiException;
+use App\Http\Requests\IsbnSearchRequest;
+use App\Services\GoogleBooksService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Http;
-
+use Illuminate\Http\Response;
 
 class BookSearchController extends Controller
 {
     /**
-     * ISBNを元にGoogle Books APIから書籍情報を取得する
+     * ISBNを元にGoogle Books APIから書籍情報を取得する。
+     *
+     * @param IsbnSearchRequest $request ISBN（13桁の数字）を含むリクエスト
+     * @param GoogleBooksService $service Google Books API 連携サービス
+     * @return JsonResponse 書籍情報 / ISBN不正は400 / 見つからない場合は404 / 通信失敗は500
      */
-    public function show(string $isbn): JsonResponse
+    public function show(IsbnSearchRequest $request, GoogleBooksService $service): JsonResponse
     {
-        // Google Books API エンドポイント
-        $response = Http::get("https://www.googleapis.com/books/v1/volumes", [
-            'q' => 'isbn:' . $isbn,
-            'key' => env('GOOGLE_BOOKS_API_KEY'),
-        ]);
-
-        if ($response->failed()) {
-            return response()->json([
-                'message' => '外部APIとの通信に失敗しました。',
-            ], 500);
+        try {
+            $bookInfo = $service->findByIsbn($request->validated('isbn'));
+        } catch (ExternalApiException $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $data = $response->json();
-
-        // 該当する書籍が見つからない場合
-        if (empty($data['items'])) {
-            return response()->json(['message' => '該当する書籍が見つかりませんでした。'], 404);
-        }
-
-        $volumeInfo = $data['items'][0]['volumeInfo'] ?? [];
-
-        // 必要な情報を抽出しフロントへ返す
-        $bookInfo = [
-            'title' => $volumeInfo['title'] ?? '',
-            'author' => isset($volumeInfo['authors']) ? implode(', ', $volumeInfo['authors']) : '',
-            'published_date' => $volumeInfo['publishedDate'] ?? null,
-            'description' => $volumeInfo['description'] ?? null,
-            'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
-        ];
-
-        return response()->json($bookInfo);
+        return $bookInfo === null
+            ? response()->json(['message' => '該当する書籍が見つかりませんでした。'], Response::HTTP_NOT_FOUND)
+            : response()->json($bookInfo);
     }
 }

@@ -8,7 +8,11 @@ use App\Models\User;
 class BookPolicy
 {
     /**
-     * Determine whether the user can update the model.
+     * 書籍を更新できるか判定する（登録者本人のみ）。
+     *
+     * @param User $user 操作ユーザー
+     * @param Book $book 対象の書籍
+     * @return bool
      */
     public function update(User $user, Book $book): bool
     {
@@ -16,7 +20,11 @@ class BookPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * 書籍を削除できるか判定する（登録者本人のみ）。
+     *
+     * @param User $user 操作ユーザー
+     * @param Book $book 対象の書籍
+     * @return bool
      */
     public function delete(User $user, Book $book): bool
     {

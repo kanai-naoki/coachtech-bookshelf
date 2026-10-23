@@ -6,27 +6,27 @@ use App\Http\Requests\ReadingPlanRequest;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Enums\ReadingPlanStatus;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReadingPlanController extends Controller
 {
     /**
-     * 読書計画一覧を表示（ステータスによる絞り込み対応）
+     * 読書計画一覧を表示（ステータスによる絞り込み対応）。
      *
-     * @param Request $request
+     * @param Request $request status クエリを受け取るリクエスト
      * @return View
      */
     public function index(Request $request): View
     {
         $currentStatus = $request->query('status');
 
-        $readingPlans = ReadingPlan::with('book')
-            ->where('user_id', $request->user()->id)
-            ->when($currentStatus, function ($query, $currentStatus) {
-                return $query->where('status', $currentStatus);
-            })
+        $readingPlans = $request->user()->readingPlans()
+            ->with('book')
+            ->ofStatus($currentStatus)
             ->latest()
             ->get();
 
@@ -34,34 +34,30 @@ class ReadingPlanController extends Controller
     }
 
     /**
-     * 読書計画の新規作成画面を表示
+     * 読書計画の新規作成画面を表示。
      *
-     * @param Request $request
      * @return View
      */
-    public function create(Request $request): View
+    public function create(): View
     {
-        // 登録用に対象となる書籍一覧を取得
         $books = Book::all();
 
         return view('reading-plans.create', compact('books'));
     }
 
     /**
-     * 読書計画を新規保存
+     * 読書計画を新規保存（進行中ステータスで登録）。
      *
-     * @param ReadingPlanRequest $request
+     * @param ReadingPlanRequest $request 検証済みの読書計画入力
      * @return RedirectResponse
      */
     public function store(ReadingPlanRequest $request): RedirectResponse
     {
-
-        ReadingPlan::create([
-            'user_id' => $request->user()->id,
-            'book_id' => $request->validated('book_id'),
-            'target_date' => $request->validated('target_date'),
-            'status' => ReadingPlanStatus::InProgress,
-        ]);
+        DB::transaction(function () use ($request): void {
+            $request->user()->readingPlans()->create(
+                $request->safe()->only(['book_id', 'target_date']) + ['status' => ReadingPlanStatus::InProgress]
+            );
+        });
 
         return redirect()
             ->route('reading-plans.index')
@@ -69,9 +65,9 @@ class ReadingPlanController extends Controller
     }
 
     /**
-     * 読書計画の編集画面を表示
+     * 読書計画の編集画面を表示（作成者本人のみ）。
      *
-     * @param ReadingPlan $readingPlan
+     * @param ReadingPlan $readingPlan 編集対象の読書計画
      * @return View
      */
     public function edit(ReadingPlan $readingPlan): View
@@ -82,10 +78,11 @@ class ReadingPlanController extends Controller
     }
 
     /**
-     * 読書計画を更新
+     * 読書計画の期限を更新（作成者本人のみ）。
+     * 期限切れの計画の期限を未来日に変更した場合は、進行中に戻す。
      *
-     * @param ReadingPlanRequest $request
-     * @param ReadingPlan $readingPlan
+     * @param ReadingPlanRequest $request 検証済みの読書計画入力
+     * @param ReadingPlan $readingPlan 更新対象の読書計画
      * @return RedirectResponse
      */
     public function update(ReadingPlanRequest $request, ReadingPlan $readingPlan): RedirectResponse
@@ -93,19 +90,14 @@ class ReadingPlanController extends Controller
         $this->authorize('update', $readingPlan);
 
         $targetDate = $request->validated('target_date');
+        $revives = $readingPlan->status === ReadingPlanStatus::Expired
+            && Carbon::parse($targetDate)->isFuture();
 
-        // 基本の更新データ
-        $updateData = [
-            'target_date' => $targetDate,
-        ];
-
-        // もし現在「期限切れ（Expired）」で、更新後の日付が今日以降（未来）の場合、
-        // ステータスを「進行中（InProgress）」に自動で戻す
-        if ($readingPlan->status === ReadingPlanStatus::Expired && \Carbon\Carbon::parse($targetDate)->isFuture()) {
-            $updateData['status'] = ReadingPlanStatus::InProgress;
-        }
-
-        $readingPlan->update($updateData);
+        DB::transaction(function () use ($readingPlan, $targetDate, $revives): void {
+            $readingPlan->update(
+                ['target_date' => $targetDate] + ($revives ? ['status' => ReadingPlanStatus::InProgress] : [])
+            );
+        });
 
         return redirect()
             ->route('reading-plans.index')
@@ -113,16 +105,19 @@ class ReadingPlanController extends Controller
     }
 
     /**
-     * 読書計画を削除
+     * 読書計画を削除（作成者本人のみ）。関連するリマインダー通知も同時に削除する。
      *
-     * @param ReadingPlan $readingPlan
+     * @param ReadingPlan $readingPlan 削除対象の読書計画
      * @return RedirectResponse
      */
     public function destroy(ReadingPlan $readingPlan): RedirectResponse
     {
         $this->authorize('delete', $readingPlan);
 
-        $readingPlan->delete();
+        DB::transaction(function () use ($readingPlan): void {
+            $readingPlan->reminderNotifications()->delete();
+            $readingPlan->delete();
+        });
 
         return redirect()
             ->route('reading-plans.index')
@@ -130,19 +125,21 @@ class ReadingPlanController extends Controller
     }
 
     /**
-     * 読書計画を「読了」に変更
+     * 読書計画を「読了」に変更し、読了日時を記録する（作成者本人のみ）。
      *
-     * @param ReadingPlan $readingPlan
+     * @param ReadingPlan $readingPlan 読了にする読書計画
      * @return RedirectResponse
      */
     public function complete(ReadingPlan $readingPlan): RedirectResponse
     {
         $this->authorize('update', $readingPlan);
 
-        $readingPlan->update([
-            'status' => ReadingPlanStatus::Completed,
-            'completed_at' => now(),
-        ]);
+        DB::transaction(function () use ($readingPlan): void {
+            $readingPlan->update([
+                'status' => ReadingPlanStatus::Completed,
+                'completed_at' => now(),
+            ]);
+        });
 
         return redirect()
             ->route('reading-plans.index')

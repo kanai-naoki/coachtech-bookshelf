@@ -6,6 +6,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Web用の書籍登録・更新リクエスト（ジャンルは `genres` キーで受け取る）。
+ */
 class BookRequest extends FormRequest
 {
     /**
@@ -30,7 +33,7 @@ class BookRequest extends FormRequest
                 'required',
                 'string',
                 'size:13',
-                Rule::unique('books')->ignore($this->book),
+                Rule::unique('books')->ignore($this->route('book')),
             ],
             'published_date' => ['nullable', 'date'],
             'description' => ['nullable', 'string'],
@@ -58,7 +61,6 @@ class BookRequest extends FormRequest
             'isbn.string' => 'ISBNは文字列で入力してください。',
             'isbn.size' => 'ISBNは13桁で入力してください。',
             'isbn.unique' => 'そのISBNは既に使用されています。',
-            // 'published_date.required' => '出版日は必須です。',
             'published_date.date' => '出版日は有効な日付形式で入力してください。',
             'description.string' => '説明は文字列で入力してください。',
             'image_url.url' => '画像URLは有効なURL形式で入力してください。',

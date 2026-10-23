@@ -8,18 +8,26 @@ use App\Models\User;
 class ReviewPolicy
 {
     /**
-     * Determine whether the user can update the model.
+     * レビューを更新できるか判定する（投稿者本人のみ）。
+     *
+     * @param User $user 操作ユーザー
+     * @param Review $review 対象のレビュー
+     * @return bool
      */
     public function update(User $user, Review $review): bool
     {
-        return $user->is($review->user);
+        return $user->id === $review->user_id;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * レビューを削除できるか判定する（投稿者本人のみ）。
+     *
+     * @param User $user 操作ユーザー
+     * @param Review $review 対象のレビュー
+     * @return bool
      */
     public function delete(User $user, Review $review): bool
     {
-        return $user->is($review->user);
+        return $user->id === $review->user_id;
     }
 }

@@ -2,14 +2,22 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Models\Book;
+use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * 書籍のAPIレスポンス表現。
+ *
+ * @mixin Book
+ */
 class BookResource extends JsonResource
 {
     /**
-     * リソースを配列へ変換
+     * リソースを配列へ変換する。
      *
+     * @param Request $request
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
@@ -29,12 +37,7 @@ class BookResource extends JsonResource
 
             // ジャンル一覧（関連データが含まれている場合）
             'genres' => $this->whenLoaded('genres', function () {
-                return $this->genres->map(function ($genre) {
-                    return [
-                        'id' => $genre->id,
-                        'name' => $genre->name,
-                    ];
-                });
+                return $this->genres->map(fn (Genre $genre): array => $genre->only(['id', 'name']));
             }),
 
             // 集計データ（withAvg / withCount で読み込まれている場合）

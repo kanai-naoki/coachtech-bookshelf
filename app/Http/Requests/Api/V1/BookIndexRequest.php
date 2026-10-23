@@ -6,11 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BookIndexRequest extends FormRequest
 {
+    /**
+     * リクエストの実行が認可されているかを判定（認証はミドルウェアで担保）。
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * バリデーションルールの定義。
+     *
+     * @return array<string, array<int, mixed>>
+     */
     public function rules(): array
     {
         return [
@@ -21,6 +29,11 @@ class BookIndexRequest extends FormRequest
         ];
     }
 
+    /**
+     * カスタムエラーメッセージの定義。
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

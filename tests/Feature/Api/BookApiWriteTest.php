@@ -86,14 +86,14 @@ class BookApiWriteTest extends TestCase
 
     // ---------- 異常系 ----------
 
-    public function test_登録時に存在しないuser_idは422(): void
+    public function test_未認証の登録は401でレコードが作られない(): void
     {
         $genre = Genre::factory()->create();
 
         $this->postJson('/api/v1/books', [
-            'user_id' => 99999, 'title' => 't', 'author' => 'a', 'isbn' => '1111111111111',
+            'title' => 't', 'author' => 'a', 'isbn' => '1111111111111',
             'published_date' => '2024-01-01', 'genre_ids' => [$genre->id],
-        ])->assertUnprocessable()->assertJsonValidationErrors('user_id');
+        ])->assertUnauthorized();
 
         $this->assertDatabaseCount('books', 0);
     }
@@ -105,7 +105,7 @@ class BookApiWriteTest extends TestCase
         $other = Book::factory()->create();
         $book = Book::factory()->create(['user_id' => $user->id]);
 
-        $this->putJson("/api/v1/books/{$book->id}", $this->payload($user, $genre, ['isbn' => $other->isbn]))
+        $this->actingAs($user)->putJson("/api/v1/books/{$book->id}", $this->payload($user, $genre, ['isbn' => $other->isbn]))
             ->assertUnprocessable()
             ->assertJsonValidationErrors('isbn');
     }
@@ -117,7 +117,7 @@ class BookApiWriteTest extends TestCase
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
 
-        $this->postJson('/api/v1/books', $this->payload($user, $genre, ['isbn' => '123456789012']))
+        $this->actingAs($user)->postJson('/api/v1/books', $this->payload($user, $genre, ['isbn' => '123456789012']))
             ->assertUnprocessable()
             ->assertJsonValidationErrors('isbn');
     }
@@ -127,9 +127,9 @@ class BookApiWriteTest extends TestCase
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
 
-        $this->postJson('/api/v1/books', $this->payload($user, $genre, ['isbn' => '1234567890123']))
+        $this->actingAs($user)->postJson('/api/v1/books', $this->payload($user, $genre, ['isbn' => '1234567890123']))
             ->assertCreated();
-        $this->postJson('/api/v1/books', $this->payload($user, $genre, ['isbn' => '12345678901234']))
+        $this->actingAs($user)->postJson('/api/v1/books', $this->payload($user, $genre, ['isbn' => '12345678901234']))
             ->assertUnprocessable()
             ->assertJsonValidationErrors('isbn');
     }
@@ -139,9 +139,9 @@ class BookApiWriteTest extends TestCase
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
 
-        $this->postJson('/api/v1/books', $this->payload($user, $genre, ['title' => str_repeat('a', 255)]))
+        $this->actingAs($user)->postJson('/api/v1/books', $this->payload($user, $genre, ['title' => str_repeat('a', 255)]))
             ->assertCreated();
-        $this->postJson('/api/v1/books', $this->payload($user, $genre, [
+        $this->actingAs($user)->postJson('/api/v1/books', $this->payload($user, $genre, [
             'title' => str_repeat('a', 256), 'isbn' => '9990000000000',
         ]))->assertUnprocessable()->assertJsonValidationErrors('title');
     }
@@ -151,7 +151,7 @@ class BookApiWriteTest extends TestCase
         $user = User::factory()->create();
         $genre = Genre::factory()->create();
 
-        $this->postJson('/api/v1/books', $this->payload($user, $genre, ['description' => null, 'image_url' => null]))
+        $this->actingAs($user)->postJson('/api/v1/books', $this->payload($user, $genre, ['description' => null, 'image_url' => null]))
             ->assertCreated()
             ->assertJsonPath('data.description', null)
             ->assertJsonPath('data.image_url', null);
