@@ -27,28 +27,28 @@ class ReadingPlanSeeder extends Seeder
                 'user_id' => $userYamada->id,
                 'book_id' => $books[0]->id ?? 1,
                 'target_date' => Carbon::today()->addDays(3),
-                'status' => ReadingPlanStatus::Unread,
+                'status' => ReadingPlanStatus::InProgress,
                 'completed_at' => null,
             ], // 1. 3日前リマインダー対象
             [
                 'user_id' => $userYamada->id,
                 'book_id' => $books[1]->id ?? 2,
                 'target_date' => Carbon::today(),
-                'status' => ReadingPlanStatus::Unread,
+                'status' => ReadingPlanStatus::InProgress,
                 'completed_at' => null,
             ], // 2. 当日リマインダー対象
             [
                 'user_id' => $userYamada->id,
                 'book_id' => $books[2]->id ?? 3,
                 'target_date' => Carbon::today()->subDays(3),
-                'status' => ReadingPlanStatus::Unread,
+                'status' => ReadingPlanStatus::InProgress,
                 'completed_at' => null,
             ], // 3. パッチでAuto-expire化 + 3日後再エンゲージメント対象
             [
                 'user_id' => $userYamada->id,
                 'book_id' => $books[3]->id ?? 4,
                 'target_date' => Carbon::today()->addDays(7),
-                'status' => ReadingPlanStatus::Unread,
+                'status' => ReadingPlanStatus::InProgress,
                 'completed_at' => null,
             ], // 4. リマインダー対象外
             [
@@ -64,7 +64,7 @@ class ReadingPlanSeeder extends Seeder
                 'user_id' => $userSuzuki->id,
                 'book_id' => $books[5]->id ?? 6,
                 'target_date' => Carbon::today()->addDays(5),
-                'status' => ReadingPlanStatus::Unread,
+                'status' => ReadingPlanStatus::InProgress,
                 'completed_at' => null,
             ], // 6. 他ユーザー権限チェック(403確認用)
         ];
