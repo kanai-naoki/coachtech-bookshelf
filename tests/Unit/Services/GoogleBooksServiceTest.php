@@ -28,33 +28,33 @@ class GoogleBooksServiceTest extends TestCase
             'published_date' => '2024',
             'description' => '説明',
             'image_url' => 'https://example.com/t.jpg',
-        ], (new GoogleBooksService())->findByIsbn(self::ISBN));
+        ], (new GoogleBooksService)->findByIsbn(self::ISBN));
     }
 
     public function test_find_by_isbn_は該当なしならnullを返す(): void
     {
         Http::fake(['*' => Http::response(['totalItems' => 0])]);
 
-        $this->assertNull((new GoogleBooksService())->findByIsbn(self::ISBN));
+        $this->assertNull((new GoogleBooksService)->findByIsbn(self::ISBN));
     }
 
-    public function test_find_by_isbn_はHTTPエラーでExternalApiExceptionを投げる(): void
+    public function test_find_by_isbn_は_htt_pエラーで_external_api_exceptionを投げる(): void
     {
         Http::fake(['*' => Http::response([], 500)]);
 
         $this->expectException(ExternalApiException::class);
         $this->expectExceptionMessage('外部APIとの通信に失敗しました。');
 
-        (new GoogleBooksService())->findByIsbn(self::ISBN);
+        (new GoogleBooksService)->findByIsbn(self::ISBN);
     }
 
-    public function test_find_by_isbn_は接続失敗を元例外付きでExternalApiExceptionに変換する(): void
+    public function test_find_by_isbn_は接続失敗を元例外付きで_external_api_exceptionに変換する(): void
     {
         $original = new ConnectionException('timeout');
         Http::fake(fn () => throw $original);
 
         try {
-            (new GoogleBooksService())->findByIsbn(self::ISBN);
+            (new GoogleBooksService)->findByIsbn(self::ISBN);
             $this->fail('ExternalApiException が投げられるべき');
         } catch (ExternalApiException $e) {
             $this->assertSame($original, $e->getPrevious());

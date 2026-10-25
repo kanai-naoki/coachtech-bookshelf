@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enums\ReadingPlanStatus;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use App\Notifications\ReadingPlanReminder;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Carbon;
 
 /**
  * 読書計画モデル（1ユーザー1書籍につき1件）。
@@ -16,11 +18,11 @@ use App\Notifications\ReadingPlanReminder;
  * @property int $id
  * @property int $user_id
  * @property int $book_id
- * @property \Illuminate\Support\Carbon $target_date 読了目標日
- * @property \Illuminate\Support\Carbon|null $completed_at 読了日時
+ * @property Carbon $target_date 読了目標日
+ * @property Carbon|null $completed_at 読了日時
  * @property ReadingPlanStatus $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class ReadingPlan extends Model
 {
@@ -73,7 +75,7 @@ class ReadingPlan extends Model
     /**
      * この計画に関するリマインダー通知（所有者宛て）。
      *
-     * @return MorphMany<\Illuminate\Notifications\DatabaseNotification>
+     * @return MorphMany<DatabaseNotification>
      */
     public function reminderNotifications(): MorphMany
     {
@@ -85,8 +87,8 @@ class ReadingPlan extends Model
     /**
      * ステータスで絞り込む。空なら何もしない。
      *
-     * @param Builder<ReadingPlan> $query
-     * @param string|null $status ステータス値（in_progress / completed / expired）
+     * @param  Builder<ReadingPlan>  $query
+     * @param  string|null  $status  ステータス値（in_progress / completed / expired）
      * @return Builder<ReadingPlan>
      */
     public function scopeOfStatus(Builder $query, ?string $status): Builder
@@ -97,8 +99,8 @@ class ReadingPlan extends Model
     /**
      * 期限日が指定日の計画に絞り込む。
      *
-     * @param Builder<ReadingPlan> $query
-     * @param string $date Y-m-d 形式の日付
+     * @param  Builder<ReadingPlan>  $query
+     * @param  string  $date  Y-m-d 形式の日付
      * @return Builder<ReadingPlan>
      */
     public function scopeDueOn(Builder $query, string $date): Builder
@@ -109,7 +111,7 @@ class ReadingPlan extends Model
     /**
      * 期限を過ぎても進行中のままの計画（自動失効の対象）に絞り込む。
      *
-     * @param Builder<ReadingPlan> $query
+     * @param  Builder<ReadingPlan>  $query
      * @return Builder<ReadingPlan>
      */
     public function scopeOverdue(Builder $query): Builder

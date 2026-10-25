@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\Favorite;
+use App\Models\Genre;
 use App\Models\ReadingPlan;
 use App\Models\Review;
 use App\Models\ReviewLike;
@@ -80,7 +81,7 @@ class PivotModelsTest extends TestCase
     public function test_genre_books_はbook_genre経由で取得できる(): void
     {
         $book = Book::factory()->create();
-        $genre = \App\Models\Genre::factory()->create();
+        $genre = Genre::factory()->create();
         $book->genres()->attach($genre->id);
 
         $this->assertSame('book_genre', $genre->books()->getTable());

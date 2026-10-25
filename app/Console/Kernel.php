@@ -9,9 +9,6 @@ class Kernel extends ConsoleKernel
 {
     /**
      * コマンドスケジュールを定義する。
-     *
-     * @param Schedule $schedule
-     * @return void
      */
     protected function schedule(Schedule $schedule): void
     {
@@ -24,12 +21,10 @@ class Kernel extends ConsoleKernel
 
     /**
      * コンソールコマンドを登録する。
-     *
-     * @return void
      */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

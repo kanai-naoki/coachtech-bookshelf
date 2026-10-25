@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
 /**
  * レビューモデル（1ユーザー1書籍につき1件）。
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $book_id 対象書籍のID
  * @property int $rating 評価値
  * @property string|null $comment
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Review extends Model
 {

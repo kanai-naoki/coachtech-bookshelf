@@ -14,9 +14,8 @@ class ReviewController extends Controller
     /**
      * レビュー投稿処理。
      *
-     * @param ReviewRequest $request 検証済みのレビュー入力
-     * @param Book $book 対象書籍
-     * @return RedirectResponse
+     * @param  ReviewRequest  $request  検証済みのレビュー入力
+     * @param  Book  $book  対象書籍
      */
     public function store(ReviewRequest $request, Book $book): RedirectResponse
     {
@@ -31,8 +30,7 @@ class ReviewController extends Controller
     /**
      * レビュー編集画面表示（投稿者本人のみ）。
      *
-     * @param Review $review 編集対象のレビュー
-     * @return View
+     * @param  Review  $review  編集対象のレビュー
      */
     public function edit(Review $review): View
     {
@@ -44,9 +42,8 @@ class ReviewController extends Controller
     /**
      * レビュー更新処理（投稿者本人のみ）。
      *
-     * @param ReviewRequest $request 検証済みのレビュー入力
-     * @param Review $review 更新対象のレビュー
-     * @return RedirectResponse
+     * @param  ReviewRequest  $request  検証済みのレビュー入力
+     * @param  Review  $review  更新対象のレビュー
      */
     public function update(ReviewRequest $request, Review $review): RedirectResponse
     {
@@ -62,8 +59,7 @@ class ReviewController extends Controller
     /**
      * レビュー削除処理（投稿者本人のみ）。
      *
-     * @param Review $review 削除対象のレビュー
-     * @return RedirectResponse
+     * @param  Review  $review  削除対象のレビュー
      */
     public function destroy(Review $review): RedirectResponse
     {

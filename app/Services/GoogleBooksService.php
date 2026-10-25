@@ -14,15 +14,16 @@ class GoogleBooksService
     /**
      * ISBNから書籍情報を取得する。
      *
-     * @param string $isbn 検索対象のISBN
+     * @param  string  $isbn  検索対象のISBN
      * @return array{title: string, author: string, published_date: string|null, description: string|null, image_url: string|null}|null 見つからなければ null
+     *
      * @throws ExternalApiException 外部APIとの通信に失敗した場合
      */
     public function findByIsbn(string $isbn): ?array
     {
         try {
             $response = Http::timeout(10)->get(config('services.google_books.endpoint'), [
-                'q' => 'isbn:' . $isbn,
+                'q' => 'isbn:'.$isbn,
                 'key' => config('services.google_books.key'),
             ]);
         } catch (ConnectionException $e) {
@@ -41,7 +42,7 @@ class GoogleBooksService
     /**
      * volumeInfo から画面で必要な項目を抽出する。
      *
-     * @param array<string, mixed> $volumeInfo Google Books API の volumeInfo
+     * @param  array<string, mixed>  $volumeInfo  Google Books API の volumeInfo
      * @return array{title: string, author: string, published_date: string|null, description: string|null, image_url: string|null}
      */
     private function extract(array $volumeInfo): array

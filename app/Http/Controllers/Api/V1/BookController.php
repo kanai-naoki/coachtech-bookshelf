@@ -19,8 +19,7 @@ class BookController extends Controller
      * 書籍一覧取得 (GET /api/v1/books)。
      * キーワード検索・ジャンル絞り込み・ページネーションに対応する。
      *
-     * @param BookIndexRequest $request keyword / genre_id / per_page を含む検証済みリクエスト
-     * @return AnonymousResourceCollection
+     * @param  BookIndexRequest  $request  keyword / genre_id / per_page を含む検証済みリクエスト
      */
     public function index(BookIndexRequest $request): AnonymousResourceCollection
     {
@@ -38,7 +37,7 @@ class BookController extends Controller
     /**
      * 書籍新規登録 (POST /api/v1/books)。書籍とジャンル紐付けを1トランザクションで行う。
      *
-     * @param BookStoreRequest $request 検証済みの書籍入力
+     * @param  BookStoreRequest  $request  検証済みの書籍入力
      * @return JsonResponse 201 Created
      */
     public function store(BookStoreRequest $request): JsonResponse
@@ -60,8 +59,7 @@ class BookController extends Controller
     /**
      * 書籍詳細取得 (GET /api/v1/books/{book})。
      *
-     * @param Book $book ルートモデルバインディングされた書籍
-     * @return BookResource
+     * @param  Book  $book  ルートモデルバインディングされた書籍
      */
     public function show(Book $book): BookResource
     {
@@ -72,8 +70,8 @@ class BookController extends Controller
      * 書籍更新 (PUT/PATCH /api/v1/books/{book})（登録者本人のみ）。
      * 書籍とジャンル紐付けの更新を1トランザクションで行う。
      *
-     * @param BookUpdateRequest $request 検証済みの書籍入力
-     * @param Book $book 更新対象の書籍
+     * @param  BookUpdateRequest  $request  検証済みの書籍入力
+     * @param  Book  $book  更新対象の書籍
      * @return BookResource 200 OK
      */
     public function update(BookUpdateRequest $request, Book $book): BookResource
@@ -91,7 +89,7 @@ class BookController extends Controller
     /**
      * 書籍削除 (DELETE /api/v1/books/{book})（登録者本人のみ）。
      *
-     * @param Book $book 削除対象の書籍
+     * @param  Book  $book  削除対象の書籍
      * @return Response 204 No Content
      */
     public function destroy(Book $book): Response
@@ -109,7 +107,7 @@ class BookController extends Controller
     /**
      * レスポンス用にジャンルと評価の集計値（平均・件数）を読み込む。
      *
-     * @param Book $book 対象の書籍
+     * @param  Book  $book  対象の書籍
      * @return Book 読み込み済みの同じインスタンス
      */
     private function loadDetails(Book $book): Book

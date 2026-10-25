@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * お気に入りの中間モデル（favorites テーブル）。
@@ -13,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $id
  * @property int $user_id
  * @property int $book_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Favorite extends Pivot
 {

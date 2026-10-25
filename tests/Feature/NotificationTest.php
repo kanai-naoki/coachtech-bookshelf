@@ -222,7 +222,7 @@ class NotificationTest extends TestCase
         $this->assertNull($notification->fresh()->read_at);
     }
 
-    public function test_存在しない通知IDは404(): void
+    public function test_存在しない通知_i_dは404(): void
     {
         $this->actingAs($this->user)
             ->post(route('notifications.read', (string) Str::uuid()))

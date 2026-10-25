@@ -30,7 +30,7 @@ class BookIndexSearchTest extends TestCase
     /**
      * 書籍を作成してジャンルを紐付ける。
      *
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function book(array $attributes = [], ?Genre $genre = null): Book
     {
@@ -61,7 +61,7 @@ class BookIndexSearchTest extends TestCase
     {
         $this->get(route('books.index', ['keyword' => 'x', 'genre' => 1, 'sort' => 'title']))
             ->assertOk()
-            ->assertSee('href="' . route('books.index') . '"', false)
+            ->assertSee('href="'.route('books.index').'"', false)
             ->assertSee('リセット');
     }
 
@@ -306,7 +306,7 @@ class BookIndexSearchTest extends TestCase
         $this->assertSame(['すごい!本'], $this->titles($response));
     }
 
-    public function test_SQLインジェクション文字列は安全に処理される(): void
+    public function test_sq_lインジェクション文字列は安全に処理される(): void
     {
         $this->book(['title' => '通常の本']);
 
@@ -317,7 +317,7 @@ class BookIndexSearchTest extends TestCase
         $this->assertDatabaseCount('books', 1);
     }
 
-    public function test_タイトルのHTMLタグはエスケープして表示される(): void
+    public function test_タイトルの_htm_lタグはエスケープして表示される(): void
     {
         $this->book(['title' => '<script>alert("xss")</script>', 'author' => '<b>著者</b>']);
 
@@ -328,7 +328,7 @@ class BookIndexSearchTest extends TestCase
             ->assertSee('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;', false);
     }
 
-    public function test_検索キーワードのHTMLタグは入力欄でエスケープされる(): void
+    public function test_検索キーワードの_htm_lタグは入力欄でエスケープされる(): void
     {
         $this->get(route('books.index', ['keyword' => '"><script>alert(1)</script>']))
             ->assertOk()

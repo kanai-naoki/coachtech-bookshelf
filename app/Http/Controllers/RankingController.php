@@ -9,8 +9,6 @@ class RankingController extends Controller
 {
     /**
      * レビュー平均評価TOP10の書籍ランキングを表示する。
-     *
-     * @return View
      */
     public function index(): View
     {

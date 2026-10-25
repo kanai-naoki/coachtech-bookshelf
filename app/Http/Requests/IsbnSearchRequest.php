@@ -59,8 +59,6 @@ class IsbnSearchRequest extends FormRequest
     /**
      * 検証失敗時は 400 Bad Request のJSONを返す。
      *
-     * @param Validator $validator
-     * @return void
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator): void

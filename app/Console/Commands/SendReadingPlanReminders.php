@@ -62,7 +62,7 @@ class SendReadingPlanReminders extends Command
     /**
      * 1つの通知ルールに該当する読書計画の所有者へ通知する。
      *
-     * @param array{date: string, timing: string, statuses: array<int, string>} $rule 通知ルール
+     * @param  array{date: string, timing: string, statuses: array<int, string>}  $rule  通知ルール
      * @return int 通知した件数
      */
     private function notify(array $rule): int

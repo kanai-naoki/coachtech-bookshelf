@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /**
@@ -30,15 +31,15 @@ class IsbnSearchTest extends TestCase
     /**
      * ISBN検索を実行する。
      */
-    private function search(string $isbn): \Illuminate\Testing\TestResponse
+    private function search(string $isbn): TestResponse
     {
-        return $this->actingAs($this->user)->getJson('/books/isbn/' . rawurlencode($isbn));
+        return $this->actingAs($this->user)->getJson('/books/isbn/'.rawurlencode($isbn));
     }
 
     /**
      * 1件ヒットしたGoogle Books APIレスポンスのfake。
      *
-     * @param array<string, mixed> $volumeInfo
+     * @param  array<string, mixed>  $volumeInfo
      */
     private function fakeFound(array $volumeInfo): void
     {
@@ -65,7 +66,7 @@ class IsbnSearchTest extends TestCase
     /**
      * @dataProvider invalidIsbnProvider
      */
-    public function test_バリデーション_13桁の数字以外は400でAPIを呼ばない(string $isbn): void
+    public function test_バリデーション_13桁の数字以外は400で_ap_iを呼ばない(string $isbn): void
     {
         Http::fake();
 
@@ -113,14 +114,14 @@ class IsbnSearchTest extends TestCase
     {
         Http::fake();
 
-        $this->get('/books/isbn/' . self::VALID_ISBN)->assertRedirect('/login');
+        $this->get('/books/isbn/'.self::VALID_ISBN)->assertRedirect('/login');
 
         Http::assertNothingSent();
     }
 
     // ==================== 正常系 (200) ====================
 
-    public function test_正常系_書籍情報がJSONで返る(): void
+    public function test_正常系_書籍情報が_jso_nで返る(): void
     {
         $this->fakeFound([
             'title' => 'ドメイン駆動設計入門',
@@ -177,7 +178,7 @@ class IsbnSearchTest extends TestCase
         $this->search(self::VALID_ISBN)->assertOk()->assertJsonPath('title', '1件目');
     }
 
-    public function test_正常系_APIへisbn条件とAPIキーを付けて問い合わせる(): void
+    public function test_正常系_ap_iへisbn条件と_ap_iキーを付けて問い合わせる(): void
     {
         config(['services.google_books.key' => 'test-key']);
         $this->fakeFound(['title' => 'テスト']);
@@ -187,7 +188,7 @@ class IsbnSearchTest extends TestCase
         Http::assertSentCount(1);
         Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
             && str_starts_with($request->url(), config('services.google_books.endpoint'))
-            && $request['q'] === 'isbn:' . self::VALID_ISBN
+            && $request['q'] === 'isbn:'.self::VALID_ISBN
             && $request['key'] === 'test-key');
     }
 
@@ -234,7 +235,7 @@ class IsbnSearchTest extends TestCase
     /**
      * @dataProvider apiErrorStatusProvider
      */
-    public function test_異常系_APIがエラーを返したら500でクラッシュしない(int $status): void
+    public function test_異常系_ap_iがエラーを返したら500でクラッシュしない(int $status): void
     {
         Http::fake(['www.googleapis.com/*' => Http::response(['error' => 'x'], $status)]);
 
