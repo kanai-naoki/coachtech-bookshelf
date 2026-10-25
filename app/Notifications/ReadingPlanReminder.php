@@ -48,17 +48,25 @@ class ReadingPlanReminder extends Notification
     {
         $bookTitle = $this->plan->book->title ?? '書籍';
 
-        // タイミングに応じた文言の出し分け
-        $body = match ($this->reminderType) {
-            'three_days_before' => "読書計画「{$bookTitle}」の期限は3日後です。",
-            'on_due_date' => "読書計画「{$bookTitle}」の期限は本日です。",
-            'three_days_after' => "読書計画「{$bookTitle}」の期限が過ぎています。",
-            default => "読書計画「{$bookTitle}」の期限が近づいています。",
+        // タイトルとボディをタイミングごとにセットで取得
+        $reminderData = match ($this->reminderType) {
+            'three_days_before' => [
+                'title' => '読書計画リマインド — 期限まであと3日',
+                'body' => "「{$bookTitle}」の期限まで残り3日です。引き続き読書を進めましょう。",
+            ],
+            'on_due_date' => [
+                'title' => '読書計画 — 本日が期限',
+                'body' => "「{$bookTitle}」は本日が期限です。読了済みなら完了登録を、もう少し必要なら期限を変更してください。",
+            ],
+            'three_days_after' => [
+                'title' => '読書計画 — 期限超過3日経過',
+                'body' => "「{$bookTitle}」の期限から3日が経過しました。読了済みなら完了登録を、続けるなら期限を変更してください。",
+            ],
         };
 
         return [
-            'title' => '読書計画のリマインダー',
-            'body' => $body,
+            'title' => $reminderData['title'],
+            'body' => $reminderData['body'],
             'timing' => $this->reminderType,
             'reading_plan_id' => $this->plan->id,
         ];

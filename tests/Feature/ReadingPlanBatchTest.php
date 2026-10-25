@@ -65,21 +65,21 @@ class ReadingPlanBatchTest extends TestCase
     // ==================== リマインダー通知 ====================
 
     /**
-     * @return array<string, array{int, string, string}>
+     * @return array<string, array{int, string, string, string}>
      */
     public static function reminderTimingProvider(): array
     {
         return [
-            '3日前' => [3, 'three_days_before', '期限は3日後です'],
-            '当日' => [0, 'on_due_date', '期限は本日です'],
-            '3日超過' => [-3, 'three_days_after', '期限が過ぎています'],
+            '3日前' => [3, 'three_days_before', '読書計画リマインド — 期限まであと3日', '期限まで残り3日です'],
+            '当日' => [0, 'on_due_date', '読書計画 — 本日が期限', '本日が期限です'],
+            '3日超過' => [-3, 'three_days_after', '読書計画 — 期限超過3日経過', '期限から3日が経過しました'],
         ];
     }
 
     /**
      * @dataProvider reminderTimingProvider
      */
-    public function test_進行中の計画にタイミングに応じた通知が作成される(int $offset, string $timing, string $bodyPart): void
+    public function test_進行中の計画にタイミングに応じた通知が作成される(int $offset, string $timing, string $title, string $bodyPart): void
     {
         $plan = $this->plan($offset);
 
@@ -90,7 +90,7 @@ class ReadingPlanBatchTest extends TestCase
         $this->assertSame(ReadingPlanReminder::class, $notification->type);
         $this->assertSame(User::class, $notification->notifiable_type);
         $this->assertNull($notification->read_at);
-        $this->assertSame('読書計画のリマインダー', $notification->data['title']);
+        $this->assertSame($title, $notification->data['title']);
         $this->assertSame($timing, $notification->data['timing']);
         $this->assertStringContainsString($bodyPart, $notification->data['body']);
         $this->assertStringContainsString($plan->book->title, $notification->data['body']);
