@@ -48,7 +48,7 @@ class ApiTokenAuthTest extends TestCase
     /**
      * Bearerトークン付きでJSONリクエストを送る。
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function api(string $method, string $uri, ?string $token, array $data = []): TestResponse
     {
@@ -60,7 +60,7 @@ class ApiTokenAuthTest extends TestCase
     /**
      * 書籍の入力データ。
      *
-     * @param array<string, mixed> $override
+     * @param  array<string, mixed>  $override
      * @return array<string, mixed>
      */
     private function payload(array $override = []): array
@@ -99,7 +99,7 @@ class ApiTokenAuthTest extends TestCase
         $this->assertStringNotContainsString(self::PASSWORD, $response->getContent());
     }
 
-    public function test_取得したトークンは平文でDBに保存されない(): void
+    public function test_取得したトークンは平文で_d_bに保存されない(): void
     {
         $token = $this->loginToken($this->user());
 
@@ -155,7 +155,8 @@ class ApiTokenAuthTest extends TestCase
 
     /**
      * @dataProvider invalidLoginProvider
-     * @param array<string, mixed> $body
+     *
+     * @param  array<string, mixed>  $body
      */
     public function test_不正な入力はバリデーションエラー(array $body, string $errorKey): void
     {
@@ -166,7 +167,7 @@ class ApiTokenAuthTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
-    public function test_ログインAPIはメール未入力のメッセージを返す(): void
+    public function test_ログイン_ap_iはメール未入力のメッセージを返す(): void
     {
         $this->postJson('/api/v1/login', ['password' => 'x'])
             ->assertJsonPath('errors.email.0', 'メールアドレスは必須です。');
@@ -242,7 +243,7 @@ class ApiTokenAuthTest extends TestCase
         $this->assertDatabaseHas('books', ['id' => $book->id]);
     }
 
-    public function test_公開APIの閲覧はトークンなしでも200(): void
+    public function test_公開_ap_iの閲覧はトークンなしでも200(): void
     {
         $book = Book::factory()->create();
 
@@ -308,7 +309,7 @@ class ApiTokenAuthTest extends TestCase
 
     // ==================== 4. ログアウトとトークン失効 ====================
 
-    public function test_ログアウトでDBから該当トークンが削除される(): void
+    public function test_ログアウトで_d_bから該当トークンが削除される(): void
     {
         $user = $this->user();
         $token = $this->loginToken($user);
@@ -322,7 +323,7 @@ class ApiTokenAuthTest extends TestCase
         $this->assertSame(0, $user->tokens()->count());
     }
 
-    public function test_ログアウト後に同じトークンで保護APIへアクセスすると401(): void
+    public function test_ログアウト後に同じトークンで保護_ap_iへアクセスすると401(): void
     {
         $user = $this->user();
         $token = $this->loginToken($user);

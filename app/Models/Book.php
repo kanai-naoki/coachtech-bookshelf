@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * 書籍モデル。
@@ -17,11 +18,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $title
  * @property string $author
  * @property string $isbn 13桁のISBN（ユニーク）
- * @property \Illuminate\Support\Carbon $published_date
+ * @property Carbon $published_date
  * @property string|null $description
  * @property string|null $image_url
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Book extends Model
 {
@@ -105,14 +106,14 @@ class Book extends Model
      * タイトルまたは著者名の部分一致で絞り込む。キーワードが空なら何もしない。
      * LIKE のワイルドカード（% / _）はリテラルとして扱う（エスケープ文字は `!`）。
      *
-     * @param Builder<Book> $query
-     * @param string|null $keyword 検索キーワード
+     * @param  Builder<Book>  $query
+     * @param  string|null  $keyword  検索キーワード
      * @return Builder<Book>
      */
     public function scopeSearch(Builder $query, ?string $keyword): Builder
     {
         return $query->when(filled($keyword), function (Builder $q) use ($keyword): void {
-            $pattern = '%' . preg_replace('/([!%_])/', '!$1', $keyword) . '%';
+            $pattern = '%'.preg_replace('/([!%_])/', '!$1', $keyword).'%';
 
             $q->where(function (Builder $q) use ($pattern): void {
                 $q->whereRaw("title LIKE ? ESCAPE '!'", [$pattern])
@@ -124,8 +125,8 @@ class Book extends Model
     /**
      * 指定ジャンルに属する書籍に絞り込む。ジャンルIDが空なら何もしない。
      *
-     * @param Builder<Book> $query
-     * @param int|string|null $genreId ジャンルID
+     * @param  Builder<Book>  $query
+     * @param  int|string|null  $genreId  ジャンルID
      * @return Builder<Book>
      */
     public function scopeInGenre(Builder $query, int|string|null $genreId): Builder
@@ -139,8 +140,8 @@ class Book extends Model
      * 並び順を適用する（latest / oldest / title / rating）。未知の値は latest 扱い。
      * rating は平均評価の高い順で、レビューのない書籍は最後に並べる。
      *
-     * @param Builder<Book> $query
-     * @param string $sort 並び順の指定
+     * @param  Builder<Book>  $query
+     * @param  string  $sort  並び順の指定
      * @return Builder<Book>
      */
     public function scopeSortedBy(Builder $query, string $sort): Builder
@@ -158,8 +159,8 @@ class Book extends Model
     /**
      * レビュー平均評価の高い順に、レビューのある書籍を上位から取得するためのスコープ。
      *
-     * @param Builder<Book> $query
-     * @param int $limit 取得件数
+     * @param  Builder<Book>  $query
+     * @param  int  $limit  取得件数
      * @return Builder<Book>
      */
     public function scopeRanked(Builder $query, int $limit = 10): Builder

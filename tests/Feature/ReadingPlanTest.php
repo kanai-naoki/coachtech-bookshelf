@@ -31,7 +31,7 @@ class ReadingPlanTest extends TestCase
     /**
      * ログインユーザーの読書計画を作成する。
      *
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function plan(array $attributes = [], ?User $owner = null): ReadingPlan
     {
@@ -521,7 +521,7 @@ class ReadingPlanTest extends TestCase
 
     // ==================== 6. 削除 ====================
 
-    public function test_削除するとDBから消え一覧へリダイレクトする(): void
+    public function test_削除すると_d_bから消え一覧へリダイレクトする(): void
     {
         $plan = $this->plan();
         $other = $this->plan();

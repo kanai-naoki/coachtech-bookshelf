@@ -20,6 +20,7 @@ class ReadingPlanBatchTest extends TestCase
     use RefreshDatabase;
 
     private const REMINDER = 'reminders:send-reading-plans';
+
     private const EXPIRE = 'reading-plans:expire';
 
     protected function setUp(): void
@@ -37,7 +38,7 @@ class ReadingPlanBatchTest extends TestCase
     /**
      * 今日から指定日数ずらした日付の読書計画を作成する（負数は過去）。
      *
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function plan(int $offsetDays, ReadingPlanStatus $status = ReadingPlanStatus::InProgress, array $attributes = []): ReadingPlan
     {

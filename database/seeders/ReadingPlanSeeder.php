@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
-use App\Enums\ReadingPlanStatus;
 
 class ReadingPlanSeeder extends Seeder
 {

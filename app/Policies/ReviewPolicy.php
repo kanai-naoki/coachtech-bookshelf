@@ -10,9 +10,8 @@ class ReviewPolicy
     /**
      * レビューを更新できるか判定する（投稿者本人のみ）。
      *
-     * @param User $user 操作ユーザー
-     * @param Review $review 対象のレビュー
-     * @return bool
+     * @param  User  $user  操作ユーザー
+     * @param  Review  $review  対象のレビュー
      */
     public function update(User $user, Review $review): bool
     {
@@ -22,9 +21,8 @@ class ReviewPolicy
     /**
      * レビューを削除できるか判定する（投稿者本人のみ）。
      *
-     * @param User $user 操作ユーザー
-     * @param Review $review 対象のレビュー
-     * @return bool
+     * @param  User  $user  操作ユーザー
+     * @param  Review  $review  対象のレビュー
      */
     public function delete(User $user, Review $review): bool
     {

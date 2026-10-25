@@ -3,10 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\ReadingPlanStatus;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-
 
 /**
  * 読書計画の登録・更新リクエスト。登録時は同一ユーザー・同一書籍の「進行中」の重複のみ禁止する（読了済み・期限切れかどうかはバリデーション側のstatus絞り込みで判定）。
@@ -24,7 +24,7 @@ class ReadingPlanRequest extends FormRequest
     /**
      * リクエストに適用するバリデーションルールを取得する
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -42,13 +42,13 @@ class ReadingPlanRequest extends FormRequest
                 : [
                     'sometimes',
                     'integer',
-                    'exists:books,id'
+                    'exists:books,id',
                 ],
 
             'target_date' => [
                 'required',
                 'date',
-                'after_or_equal:today'
+                'after_or_equal:today',
             ],
         ];
     }

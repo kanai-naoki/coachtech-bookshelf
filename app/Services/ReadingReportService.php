@@ -14,7 +14,7 @@ class ReadingReportService
     /**
      * ユーザーのレビューから読書レポートの統計を作成する。
      *
-     * @param User $user 対象ユーザー
+     * @param  User  $user  対象ユーザー
      * @return array{summary: array<string, int|float>, rating_distribution: Collection<int, int>, top_rated_books: Collection<int, array{id: int, title: string, author: string, rating: int}>, genre_ratings: Collection<int, array<string, mixed>>}
      */
     public function build(User $user): array
@@ -37,7 +37,7 @@ class ReadingReportService
     /**
      * 1〜5星ごとのレビュー件数を返す。
      *
-     * @param Collection<int, Review> $reviews
+     * @param  Collection<int, Review>  $reviews
      * @return Collection<int, int>
      */
     private function ratingDistribution(Collection $reviews): Collection
@@ -50,7 +50,7 @@ class ReadingReportService
     /**
      * 4星以上の書籍を評価の高い順に最大5件返す。
      *
-     * @param Collection<int, Review> $reviews
+     * @param  Collection<int, Review>  $reviews
      * @return Collection<int, array{id: int, title: string, author: string, rating: int}>
      */
     private function topRatedBooks(Collection $reviews): Collection
@@ -70,7 +70,7 @@ class ReadingReportService
     /**
      * ジャンル別の平均評価と件数を、平均評価の高い順に最大5件返す。
      *
-     * @param Collection<int, Review> $reviews
+     * @param  Collection<int, Review>  $reviews
      * @return Collection<int, array{id: int, name: string, average_rating: float, count: int}>
      */
     private function genreRatings(Collection $reviews): Collection

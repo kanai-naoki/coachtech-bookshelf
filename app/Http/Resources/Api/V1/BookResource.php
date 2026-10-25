@@ -17,7 +17,6 @@ class BookResource extends JsonResource
     /**
      * リソースを配列へ変換する。
      *
-     * @param Request $request
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array

@@ -11,9 +11,8 @@ class ReadingReportController extends Controller
     /**
      * ログインユーザーのマイ読書レポートを表示する。
      *
-     * @param Request $request 認証済みユーザーを含むリクエスト
-     * @param ReadingReportService $service 集計サービス
-     * @return View
+     * @param  Request  $request  認証済みユーザーを含むリクエスト
+     * @param  ReadingReportService  $service  集計サービス
      */
     public function index(Request $request, ReadingReportService $service): View
     {

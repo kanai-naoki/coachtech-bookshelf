@@ -9,14 +9,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
     /**
      * APIトークンの発行（ログイン）。
      *
-     * @param LoginRequest $request email / password を含む検証済みリクエスト
+     * @param  LoginRequest  $request  email / password を含む検証済みリクエスト
      * @return JsonResponse access_token と token_type を含むJSON
+     *
      * @throws ValidationException 認証情報が正しくない場合
      */
     public function login(LoginRequest $request): JsonResponse
@@ -38,12 +40,11 @@ class AuthController extends Controller
     /**
      * APIトークンの削除（ログアウト）。現在のリクエストで使用中のトークンのみ削除する。
      *
-     * @param Request $request 認証済みユーザーを含むリクエスト
-     * @return JsonResponse
+     * @param  Request  $request  認証済みユーザーを含むリクエスト
      */
     public function logout(Request $request): JsonResponse
     {
-        /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+        /** @var PersonalAccessToken|null $token */
         $token = $request->user()->currentAccessToken();
 
         $token?->delete();

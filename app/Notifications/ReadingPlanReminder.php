@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Models\ReadingPlan;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -15,13 +14,14 @@ class ReadingPlanReminder extends Notification
     use Queueable;
 
     protected ReadingPlan $plan;
+
     protected string $reminderType;
 
     /**
      * 通知インスタンスを生成する。
      *
-     * @param ReadingPlan $plan 読書計画モデル
-     * @param string $timing タイミング識別子 ('three_days_before', 'on_due_date', 'three_days_after')
+     * @param  ReadingPlan  $plan  読書計画モデル
+     * @param  string  $timing  タイミング識別子 ('three_days_before', 'on_due_date', 'three_days_after')
      */
     public function __construct(ReadingPlan $plan, string $timing = 'three_days_before')
     {

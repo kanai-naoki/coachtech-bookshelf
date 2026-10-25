@@ -28,8 +28,8 @@ class ReadingReportTest extends TestCase
     /**
      * 指定評価のレビューを持つ書籍を作成する（1ユーザー1書籍1レビューのため書籍は都度作成）。
      *
-     * @param array<int, Genre> $genres
-     * @param array<string, mixed> $bookAttributes
+     * @param  array<int, Genre>  $genres
+     * @param  array<string, mixed>  $bookAttributes
      */
     private function review(int $rating, array $genres = [], ?User $user = null, array $bookAttributes = []): Review
     {
@@ -223,7 +223,7 @@ class ReadingReportTest extends TestCase
         $review = $this->review(4, [], null, ['title' => 'リンク確認の本', 'author' => 'リンク著者']);
 
         $response = $this->report()
-            ->assertSee('href="' . route('books.show', $review->book_id) . '"', false)
+            ->assertSee('href="'.route('books.show', $review->book_id).'"', false)
             ->assertSee('リンク確認の本')
             ->assertSee('リンク著者')
             ->assertSee('★★★★☆');
@@ -314,7 +314,7 @@ class ReadingReportTest extends TestCase
         $this->review(4, [$genre]);
 
         $this->report()
-            ->assertSee('href="' . route('genres.show', $genre->id) . '"', false)
+            ->assertSee('href="'.route('genres.show', $genre->id).'"', false)
             ->assertSee('リンク確認ジャンル')
             ->assertSee('2件のレビュー')
             ->assertSee('4.5');

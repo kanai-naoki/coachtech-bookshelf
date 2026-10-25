@@ -11,9 +11,8 @@ class ReviewLikeController extends Controller
     /**
      * レビューへの「いいね」を追加/解除（トグル）する。
      *
-     * @param Request $request 認証済みユーザーを含むリクエスト
-     * @param Review $review 対象レビュー
-     * @return RedirectResponse
+     * @param  Request  $request  認証済みユーザーを含むリクエスト
+     * @param  Review  $review  対象レビュー
      */
     public function __invoke(Request $request, Review $review): RedirectResponse
     {

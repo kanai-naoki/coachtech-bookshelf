@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use App\Models\Book;
 use App\Models\Review;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 
 class ReviewSeeder extends Seeder
 {

@@ -13,8 +13,8 @@ class BookSearchController extends Controller
     /**
      * ISBNを元にGoogle Books APIから書籍情報を取得する。
      *
-     * @param IsbnSearchRequest $request ISBN（13桁の数字）を含むリクエスト
-     * @param GoogleBooksService $service Google Books API 連携サービス
+     * @param  IsbnSearchRequest  $request  ISBN（13桁の数字）を含むリクエスト
+     * @param  GoogleBooksService  $service  Google Books API 連携サービス
      * @return JsonResponse 書籍情報 / ISBN不正は400 / 見つからない場合は404 / 通信失敗は500
      */
     public function show(IsbnSearchRequest $request, GoogleBooksService $service): JsonResponse

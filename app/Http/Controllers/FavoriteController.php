@@ -12,8 +12,7 @@ class FavoriteController extends Controller
     /**
      * お気に入り書籍一覧を表示する。
      *
-     * @param Request $request 認証済みユーザーを含むリクエスト
-     * @return View
+     * @param  Request  $request  認証済みユーザーを含むリクエスト
      */
     public function index(Request $request): View
     {
@@ -27,9 +26,8 @@ class FavoriteController extends Controller
     /**
      * お気に入りの追加 / 解除（トグル）を行う。
      *
-     * @param Request $request 認証済みユーザーを含むリクエスト
-     * @param Book $book 対象書籍
-     * @return RedirectResponse
+     * @param  Request  $request  認証済みユーザーを含むリクエスト
+     * @param  Book  $book  対象書籍
      */
     public function toggle(Request $request, Book $book): RedirectResponse
     {
