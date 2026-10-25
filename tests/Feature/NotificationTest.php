@@ -69,8 +69,8 @@ class NotificationTest extends TestCase
             ->assertOk()
             ->assertViewIs('notifications.index')
             ->assertSee('通知一覧')
-            ->assertSee('読書計画のリマインダー')
-            ->assertSee('読書計画「表示確認の本」の期限は3日後です。')
+            ->assertSee('読書計画リマインド — 期限まであと3日')
+            ->assertSee('「表示確認の本」の期限まで残り3日です。引き続き読書を進めましょう。')
             ->assertSee('未読')
             ->assertSee('既読にする');
 
@@ -85,9 +85,9 @@ class NotificationTest extends TestCase
     public static function timingStyleProvider(): array
     {
         return [
-            '3日前' => ['three_days_before', 'bg-blue-500', '期限は3日後です'],
-            '当日' => ['on_due_date', 'bg-yellow-500', '期限は本日です'],
-            '超過' => ['three_days_after', 'bg-red-500', '期限が過ぎています'],
+            '3日前' => ['three_days_before', 'bg-blue-500', '期限まで残り3日です'],
+            '当日' => ['on_due_date', 'bg-yellow-500', '本日が期限です'],
+            '超過' => ['three_days_after', 'bg-red-500', '期限から3日が経過しました'],
         ];
     }
 
@@ -124,7 +124,7 @@ class NotificationTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('notifications.index'))
             ->assertOk()
-            ->assertSee('読書計画のリマインダー')
+            ->assertSee('読書計画 — 本日が期限')
             ->assertDontSee('未読')
             ->assertDontSee('既読にする');
     }
