@@ -12,8 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // 毎日 0:05 に期限切れの進行中計画を自動失効させる
-        $schedule->command('reading-plans:expire')->dailyAt('00:05');
+        // 毎日 20:00 に期限切れの進行中計画を自動失効させる
+        $schedule->command('reading-plans:expire')->dailyAt('20:00');
 
         // 毎日 20:00 にリマインダー通知を送信する
         $schedule->command('reminders:send-reading-plans')->dailyAt('20:00');
