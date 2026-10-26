@@ -158,6 +158,16 @@ DB_USERNAME=sail
 DB_PASSWORD=password
 ```
 
+#### 外部APIの準備（Google Books API）
+
+本アプリのISBN検索機能を利用するには、Google Books APIのキーが必要です。以下の手順で取得してください。
+
+1. [Google Cloud Console](https://console.cloud.google.com/) にアクセスします。
+2. 新規プロジェクトを作成します。
+3. 「APIとサービス」＞「ライブラリ」から 「**Books API**」 を検索し、有効化します。
+4. 「認証情報」画面から **「APIキー」** を作成します。
+5. 作成したAPIキーを `.env` ファイルの `GOOGLE_BOOKS_API_KEY=` に設定します。
+
 ### 3. Composer パッケージのインストール
 
 Docker イメージを経由して依存関係をインストールします。
